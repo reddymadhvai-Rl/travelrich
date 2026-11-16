@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 import { vehicles as seed, fmtDate } from "./data.js";
 
 /* ---------- options ---------- */
-export const VEHICLE_TYPES = ["Car", "SUV", "Sedan", "Tempo Traveller", "Mini Bus", "Bus"];
+export const VEHICLE_TYPES = ["Car", "SUV", "MUV", "Sedan", "Tempo Traveller", "Mini Bus", "Bus"];
 export const FUEL_TYPES = ["Petrol", "Diesel", "CNG", "Electric", "Hybrid"];
 export const OWNERSHIP = ["Owned", "Leased", "Attached"];
 export const PERMIT_TYPES = ["Tourist", "State", "National"];
@@ -23,10 +23,18 @@ export const DOC_FIELDS = [
   ["roadTaxExpiry", "Road Tax"],
 ];
 
+/** Optional documents ("if applicable"): alerted on expiry, but never flagged as missing. */
+export const OPTIONAL_DOC_FIELDS = [
+  ["rcExpiry", "RC"],
+  ["nationalPermitExpiry", "National Permit"],
+  ["statePermitExpiry", "State Permit"],
+];
+const ALERT_FIELDS = [...DOC_FIELDS, ...OPTIONAL_DOC_FIELDS];
+
 /** Document compliance is computed from expiry dates, separately from vehicle status. */
 export function docState(v) {
-  const expired = DOC_FIELDS.filter(([k]) => daysLeft(v[k]) !== null && daysLeft(v[k]) < 0).map(([, l]) => l);
-  const soon = DOC_FIELDS.filter(([k]) => daysLeft(v[k]) !== null && daysLeft(v[k]) >= 0 && daysLeft(v[k]) <= 30).map(([, l]) => l);
+  const expired = ALERT_FIELDS.filter(([k]) => daysLeft(v[k]) !== null && daysLeft(v[k]) < 0).map(([, l]) => l);
+  const soon = ALERT_FIELDS.filter(([k]) => daysLeft(v[k]) !== null && daysLeft(v[k]) >= 0 && daysLeft(v[k]) <= 30).map(([, l]) => l);
   const missing = DOC_FIELDS.filter(([k]) => !v[k]).map(([, l]) => l);
   if (expired.length) return { label: "Documents Expired", tone: "st-red", expired, soon, missing };
   if (soon.length) return { label: "Expiring Soon", tone: "st-orange", expired, soon, missing };

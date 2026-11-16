@@ -6,7 +6,7 @@ import {
   Route, Wrench, TriangleAlert, UserX, UserCheck, Wallet, Clock,
   BellRing, ChartPie, ClipboardCheck, CalendarClock, Ban,
   ShieldCheck, BadgeCheck, Wind, FileText, Landmark, MapPin,
-  User, CheckCircle2, Hourglass, ArrowUpRight, TrendingUp, Plus, Sun, ArrowUp, ArrowDown, Receipt, BarChart3,
+  User, CheckCircle2, Hourglass, ArrowUpRight, ArrowRight, TrendingUp, Plus, Sun, ArrowUp, ArrowDown, Receipt, BarChart3,
 } from "lucide-react";
 import {
   drivers, bookings, payments,
@@ -20,30 +20,20 @@ const initials = (n) => String(n).split(" ").map((s) => s[0]).slice(0, 2).join("
 const BAR_COLOR = "#0a3d8f";
 
 /* ---- small reusable pieces ---- */
-// tiny decorative bar sparkline (heights derived from the label so each card differs)
-function Spark({ seed }) {
-  const bars = Array.from({ length: 8 }, (_, i) => 6 + ((seed * (i + 3) * 7) % 15));
-  return (
-    <svg className="spark" viewBox="0 0 48 22" aria-hidden="true">
-      {bars.map((h, i) => (
-        <rect key={i} x={i * 6} y={22 - h} width="4" height={h} rx="2" fill="currentColor" opacity={0.25 + i * 0.1} />
-      ))}
-    </svg>
-  );
-}
-
 function Stat({ icon: Icon, tone, value, label, sub }) {
   return (
     <div className={`stat tone-${tone}`}>
-      <div className="stat-top">
-        <span className="lbl">{label}</span>
-        <div className="stat-ico"><Icon size={20} strokeWidth={2.1} /></div>
+      <svg className="stat-wave" viewBox="0 0 120 50" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 50 C25 46 35 14 70 18 C95 21 108 8 120 0 L120 50 Z" fill="currentColor" />
+      </svg>
+      <div className="stat-body">
+        <div className="stat-ico"><Icon size={20} strokeWidth={1.9} /></div>
+        <div className="stat-txt">
+          <span className="lbl">{label}</span>
+          <div className="num">{value}</div>
+        </div>
       </div>
-      <div className="num">{value}</div>
-      <div className="stat-foot">
-        <span className="sub"><TrendingUp size={12} /> {sub}</span>
-        <Spark seed={label.length} />
-      </div>
+      <span className="sub">{sub}</span>
     </div>
   );
 }
@@ -103,39 +93,6 @@ const vehicleState = (v) =>
   : v.status === "Booked" ? { text: "Booked", cls: "b-amber" }
   : { text: "Available", cls: "b-blue" };
 
-/* Animated banner illustration: bus driving on a road, clouds + trees passing by */
-function BusIllustration() {
-  return (
-    <svg viewBox="0 0 360 170" className="banner-art" aria-hidden="true">
-      <circle cx="302" cy="34" r="20" fill="#fde68a" opacity=".9" className="sun" />
-      <g className="cloud c1" fill="#fff" opacity=".55"><ellipse cx="60" cy="38" rx="26" ry="10" /><ellipse cx="80" cy="32" rx="18" ry="9" /></g>
-      <g className="cloud c2" fill="#fff" opacity=".4"><ellipse cx="210" cy="60" rx="22" ry="8" /><ellipse cx="226" cy="55" rx="14" ry="7" /></g>
-      <g className="trees">
-        <g transform="translate(0 0)"><rect x="40" y="100" width="4" height="16" fill="#0b3b2e" /><circle cx="42" cy="96" r="12" fill="#10b981" /></g>
-        <g transform="translate(150 0)"><rect x="40" y="104" width="4" height="12" fill="#0b3b2e" /><circle cx="42" cy="100" r="9" fill="#34d399" /></g>
-        <g transform="translate(300 0)"><rect x="40" y="100" width="4" height="16" fill="#0b3b2e" /><circle cx="42" cy="96" r="12" fill="#10b981" /></g>
-        <g transform="translate(450 0)"><rect x="40" y="104" width="4" height="12" fill="#0b3b2e" /><circle cx="42" cy="100" r="9" fill="#34d399" /></g>
-      </g>
-      <rect x="0" y="130" width="360" height="40" fill="#0f2742" opacity=".55" />
-      <path className="road" d="M0 150h720" stroke="rgba(255,255,255,.7)" strokeWidth="3" strokeDasharray="16 14" />
-      <g className="bus-body">
-        <g transform="translate(96 62)">
-          <rect x="0" y="0" width="170" height="64" rx="14" fill="#fff" />
-          <rect x="0" y="40" width="170" height="10" fill="#f59e0b" />
-          <rect x="14" y="10" width="26" height="22" rx="4" fill="#bae6fd" />
-          <rect x="46" y="10" width="26" height="22" rx="4" fill="#bae6fd" />
-          <rect x="78" y="10" width="26" height="22" rx="4" fill="#bae6fd" />
-          <rect x="110" y="10" width="26" height="22" rx="4" fill="#bae6fd" />
-          <rect x="142" y="10" width="20" height="30" rx="4" fill="#7dd3fc" />
-          <circle cx="166" cy="54" r="3.5" fill="#fde047" />
-          <g className="wheel" style={{ transformOrigin: "38px 66px" }}><circle cx="38" cy="66" r="12" fill="#0f2742" /><circle cx="38" cy="66" r="5" fill="#cbd5e1" /><path d="M38 58v16M30 66h16" stroke="#64748b" strokeWidth="2" /></g>
-          <g className="wheel" style={{ transformOrigin: "132px 66px" }}><circle cx="132" cy="66" r="12" fill="#0f2742" /><circle cx="132" cy="66" r="5" fill="#cbd5e1" /><path d="M132 58v16M124 66h16" stroke="#64748b" strokeWidth="2" /></g>
-        </g>
-      </g>
-    </svg>
-  );
-}
-
 export default function Dashboard() {
   const vehicles = useVehicles();
   const [tab, setTab] = useState("present");
@@ -188,9 +145,9 @@ export default function Dashboard() {
       {/* Welcome banner */}
       <section className="banner">
         <div className="banner-text">
-          <span className="banner-chip"><Sun size={13} /> {greet}, Admin</span>
+          <span className="banner-chip"><Sun size={20} /> {greet}, Admin</span>
           <div className="banner-info">
-            <h2>Your fleet at a glance</h2>
+            <h2>Your fleet at a Glance</h2>
             <p>
               {online} of {totalVehicles} vehicles online · {onTrip} on trip ·{" "}
               {importantAlerts.filter((a) => a.daysLeft <= 7).length} urgent alerts need attention.
@@ -201,7 +158,6 @@ export default function Dashboard() {
             <button className="btn outline" onClick={() => nav("/tracking")}><MapPin size={15} /> Live Tracking</button>
           </div>
         </div>
-        <BusIllustration />
       </section>
 
       <div className="stat-grid">{row1.map((s) => <Stat key={s.label} {...s} />)}</div>
@@ -214,25 +170,14 @@ export default function Dashboard() {
             subtitle="Documents & services due soon" count={importantAlerts.length} />
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Vehicle</th><th>Alert</th><th>Due Date</th><th>Status</th></tr></thead>
+              <thead><tr><th>Vehicle</th><th>Alert</th><th>Due date</th><th>Status</th></tr></thead>
               <tbody>
                 {importantAlerts.map((a) => {
-                  const Icon = alertIcons[a.type] || FileText;
                   const sev = severity(a.daysLeft);
                   return (
                     <tr key={a.id}>
-                      <td>
-                        <div className="cell-flex">
-                          <span className="mini-ico tone-blue"><Car size={15} /></span>
-                          <b>{a.vehicle}</b>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="cell-flex">
-                          <span className={`mini-ico tone-${sev.tone}`}><Icon size={15} /></span>
-                          {a.type}
-                        </div>
-                      </td>
+                      <td>{a.vehicle}</td>
+                      <td>{a.type}</td>
                       <td>{a.expiry}</td>
                       <td><span className={`badge dot b-${sev.tone}`}>{sev.text}</span></td>
                     </tr>
@@ -249,7 +194,7 @@ export default function Dashboard() {
           <div className="donut">
             <ResponsiveContainer>
               <PieChart>
-                <Pie data={pie} dataKey="value" nameKey="name" innerRadius={62} outerRadius={92} paddingAngle={4} stroke="none">
+                <Pie data={pie} dataKey="value" nameKey="name" innerRadius={68} outerRadius={96} paddingAngle={0} stroke="none">
                   {pie.map((p) => <Cell key={p.name} fill={p.color} />)}
                 </Pie>
                 <Tooltip />
@@ -258,21 +203,18 @@ export default function Dashboard() {
             <div className="donut-center">
               <Car size={20} />
               <b>{totalVehicles}</b>
-              <span>Total Vehicles</span>
+              <span>Vehicles</span>
             </div>
           </div>
           <div className="legend-list">
-            {pie.map((p) => {
-              const Icon = p.icon;
-              return (
-                <div className="legend-row" key={p.name}>
-                  <span className="mini-ico" style={{ background: p.color + "22", color: p.color }}><Icon size={15} /></span>
-                  <span className="l-name">{p.name}</span>
-                  <b>{p.value}</b>
-                  <span className="l-pct">{Math.round((p.value / totalVehicles) * 100)}%</span>
-                </div>
-              );
-            })}
+            {pie.map((p) => (
+              <div className="legend-row" key={p.name}>
+                <i className="l-dot" style={{ background: p.color }} />
+                <span className="l-name">{p.name}</span>
+                <b>{p.value}</b>
+                <span className="l-pct">{totalVehicles ? Math.round((p.value / totalVehicles) * 100) : 0}%</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -330,9 +272,8 @@ export default function Dashboard() {
             })
           )}
 
-          <button className="btn outline" style={{ width: "100%", marginTop: 10 }}
-            onClick={() => nav(bvTab === "bookings" ? "/bookings" : "/vehicles")}>
-            View all {bvTab === "bookings" ? "bookings" : "vehicles"} <ArrowUpRight size={14} />
+          <button className="view-all" onClick={() => nav(bvTab === "bookings" ? "/bookings" : "/vehicles")}>
+            View all <ArrowRight size={17} />
           </button>
         </div>
 
@@ -356,6 +297,9 @@ export default function Dashboard() {
                 : <span className="badge b-red">Leave</span>}
             </div>
           ))}
+          <button className="view-all" onClick={() => nav("/attendance/today")}>
+            View all <ArrowRight size={17} />
+          </button>
         </div>
 
         {/* Sales + Expenses */}
@@ -368,15 +312,24 @@ export default function Dashboard() {
 
           <div className="mini-chart">
             <ResponsiveContainer>
-              <BarChart data={monthly} margin={{ top: 10, right: 8, left: -18, bottom: 0 }} barCategoryGap="22%">
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5eaf1" />
+              <BarChart data={monthly} margin={{ top: 10, right: 8, left: -18, bottom: 0 }} barCategoryGap="14%">
+                <defs>
+                  <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#0a7de0" />
+                    <stop offset="100%" stopColor="#0657b5" />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#d7dee9" />
                 <XAxis dataKey="m" tickLine={false} axisLine={false} fontSize={10} interval={0} />
-                <YAxis tickLine={false} axisLine={false} fontSize={11} />
+                <YAxis tickLine={false} axisLine={false} fontSize={11} {...(bkTab === "sales" ? { domain: [0, 180], ticks: [0, 40, 80, 120, 160, 180] } : {})} />
                 <Tooltip cursor={{ fill: "rgba(0,29,81,.06)" }} formatter={(v) => [`₹ ${v} L`, bkTab === "sales" ? "Sales" : "Expenses"]} />
-                <Bar dataKey={bkTab} fill={BAR_COLOR} radius={[4, 4, 0, 0]} />
+                <Bar dataKey={bkTab} fill="url(#barGrad)" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
+          <button className="view-all" onClick={() => nav(bkTab === "sales" ? "/payments" : "/expenses")}>
+            View all <ArrowRight size={17} />
+          </button>
         </div>
       </div>
     </>

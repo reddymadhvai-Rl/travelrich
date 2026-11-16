@@ -312,18 +312,18 @@ export default function Layout() {
 
       <div className="main">
         <header className="topbar">
-          <div className="top-left">
-            <button className="burger" onClick={() => setOpen(!open)}><Menu /></button>
-            <h1>{title}</h1>
-            <PageActions />
-          </div>
-          <GoogleSearch />
-          <div className="right">
-            <span className="date-chip"><CalendarDays size={15} /> {today}</span>
-            <Notifications />
-            <ProfileMenu onLogout={logout} />
-          </div>
-        </header>
+  <div className="top-left">
+    <button className="burger" onClick={() => setOpen(!open)}><Menu /></button>
+    <h1>{title}</h1>
+  </div>
+
+  <div className="right">
+    <GoogleSearch />   {/* or whatever your search component is called */}
+    <span className="date-chip"><CalendarDays size={15} /> {today}</span>
+    <Notifications />
+    <ProfileMenu onLogout={logout} />
+  </div>
+</header>
         <main className="content"><Outlet /></main>
       </div>
     </div>

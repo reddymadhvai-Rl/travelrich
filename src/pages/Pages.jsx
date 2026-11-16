@@ -45,34 +45,39 @@ export const VehiclesPage = () => (
 export const DriversPage = () => (
   <DataPage
     title="Drivers" singular="Driver" idPrefix="DR" initial={drivers}
-    subtitle="Click a driver to edit their details and ID proofs"
+    subtitle="Click a driver to edit their details"
     tabs={[
       { label: "All Drivers", icon: UserRound },
-      { label: "On Duty", icon: UserCheck, test: (r) => r.status === "On Duty" },
-      { label: "Off Duty", icon: UserX, test: (r) => r.status === "Off Duty" },
+      { label: "Available", icon: UserCheck, test: (r) => r.status === "Available" },
+      { label: "Assigned", icon: Car, test: (r) => r.status === "Assigned" },
+      { label: "On Leave", icon: UserX, test: (r) => r.status === "On Leave" },
     ]}
     columns={[
       { key: "id", label: "ID", id: true },
       { key: "name", label: "Full Name", icon: UserRound, primary: true },
-      { key: "phone", label: "Phone", icon: Phone },
-      { key: "aadhaar", label: "Aadhaar No", icon: Fingerprint },
-      { key: "license", label: "Licence No", icon: IdCard },
+      { key: "phone", label: "Mobile Number", icon: Phone },
+      { key: "alternate", label: "Alternate Number", icon: Phone },
+      { key: "license", label: "Driving Licence No", icon: IdCard },
+      { key: "licenceType", label: "Licence Type", icon: IdCard },
       { key: "expiry", label: "Licence Expiry", icon: CalendarDays },
-      { key: "aadhaarFile", label: "Aadhaar Copy", icon: Paperclip, files: true },
-      { key: "licenseFile", label: "Licence Copy", icon: Paperclip, files: true },
+      { key: "aadhaar", label: "Aadhaar / ID Proof", icon: Fingerprint },
+      { key: "address", label: "Address", icon: MapPin },
+      { key: "experience", label: "Experience (Yrs)", icon: Clock },
+      { key: "salaryType", label: "Salary Type", icon: Wallet },
       { key: "status", label: "Status", icon: Activity, badge: true },
     ]}
     fields={[
-      { key: "name", label: "Driver Full Name", required: true, placeholder: "As on Aadhaar / licence" },
-      { key: "phone", label: "Phone Number", type: "tel", required: true, half: true },
-      { key: "status", label: "Status", type: "select", options: ["On Duty", "Off Duty"], default: "On Duty", half: true },
-      { key: "aadhaar", label: "Aadhaar Number", required: true, placeholder: "1234 5678 9012", half: true },
-      { key: "license", label: "Licence Number", required: true, half: true },
-      { key: "expiry", label: "Licence Expiry", type: "date", required: true },
-      { key: "aadhaarFile", label: "Aadhaar Attachment", type: "file" },
-      { key: "licenseFile", label: "Licence Attachment", type: "file" },
-      { key: "otherFiles", label: "Other Attachments (RC, police verification, photo…)", type: "file" },
-      { key: "notes", label: "Description", type: "rich" },
+      { key: "name", label: "Driver Name (Full Name)", required: true, placeholder: "Enter full name as on licence" },
+      { key: "phone", label: "Mobile Number", type: "tel", required: true, placeholder: "Enter 10 digit mobile number", half: true },
+      { key: "alternate", label: "Alternate Number (Emergency Contact)", type: "tel", placeholder: "Enter emergency contact number", half: true },
+      { key: "license", label: "Driving Licence Number (DL)", required: true, placeholder: "e.g. TS0920190012345", half: true },
+      { key: "licenceType", label: "Licence Type", type: "select", options: ["LMV", "Transport", "HMV", "Other"], placeholder: "Select licence type", half: true },
+      { key: "expiry", label: "Licence Expiry Date (Renewal Reminder)", type: "date", required: true, placeholder: "dd/mm/yyyy", half: true },
+      { key: "aadhaar", label: "Aadhaar / ID Proof", placeholder: "Enter Aadhaar / ID number (e.g. 1234 5678 9012)", half: true },
+      { key: "address", label: "Residential Address", placeholder: "Enter residential address" },
+      { key: "experience", label: "Experience (Years)", type: "number", placeholder: "Enter years of experience", half: true },
+      { key: "salaryType", label: "Salary Type", type: "select", options: ["Monthly", "Per trip"], placeholder: "Select salary type", half: true },
+      { key: "status", label: "Driver Status", type: "select", options: ["Available", "Assigned", "On Leave"], default: "Available", placeholder: "Select driver status", half: true },
     ]}
   />
 );

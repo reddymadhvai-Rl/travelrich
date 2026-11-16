@@ -124,16 +124,15 @@ function GoogleSearch() {
   return (
     <div ref={ref} className={`gsearch ${focus ? "focus" : ""} ${focus && rows.length ? "has-results" : ""}`}>
       <div className="gsearch-box">
-        <Search size={18} />
         <input
           value={q}
-          placeholder="Search vehicles, drivers, bookings or Google..."
+          placeholder="Search vehicles, drivers, bookings..."
           onFocus={() => setFocus(true)}
           onChange={(e) => { setQ(e.target.value); setIdx(-1); }}
           onKeyDown={onKey}
         />
-        {q && <button className="clear" onClick={() => setQ("")}><X size={18} /></button>}
-        <Mic size={18} className="mic" />
+        {q && <button className="clear" onClick={() => setQ("")}><X size={16} /></button>}
+        <Search size={17} className="mic" />
       </div>
       {focus && rows.length > 0 && (
         <div className="gsearch-list">
@@ -214,7 +213,7 @@ function ProfileMenu({ onLogout }) {
   return (
     <div className="dd" ref={ref}>
       <button className="user-btn" onClick={() => setOpen(!open)}>
-        <div className="avatar">A</div>
+        <div className="avatar"><User size={20} strokeWidth={2} /></div>
         <div className="who"><b>Admin</b><span>Super Admin</span></div>
         <ChevronDown size={16} style={{ transform: open ? "rotate(180deg)" : "none", transition: ".15s" }} />
       </button>
@@ -246,7 +245,7 @@ function SidebarGroup({ item, close, open, onToggle }) {
   return (
     <div className={`menu-group ${open ? "open" : ""}`}>
       <button className={`menu-item group-btn ${inside ? "active" : ""}`} onClick={onToggle} aria-expanded={open}>
-        <Icon size={17} /> {item.label}
+        <Icon size={17} strokeWidth={1.8} /> <span>{item.label}</span>
         <ChevronDown size={15} className="chev" />
       </button>
       {open && (
@@ -300,29 +299,31 @@ export default function Layout() {
     nav("/login");
   };
 
-  const today = new Date().toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  const today = (() => {
+    const d = new Date();
+    const f = (o) => d.toLocaleDateString("en-GB", o);
+    return `${f({ weekday: "short" })}, ${d.getDate()} ${f({ month: "short" })}, ${d.getFullYear()}`;
+  })();
 
   return (
     <div className="app">
       <aside className={`sidebar ${open ? "open" : ""}`}>
-        <div className="brand-plate">
+        <div className="brand-logo">
           <img src={logo} alt="Travel Rich" />
-          <small>Fleet Admin Panel</small>
         </div>
         <nav className="menu">
-          <div className="menu-label">Main Menu</div>
           {menu.map((m) => m.children ? (
             <SidebarGroup key={m.label} item={m} close={() => setOpen(false)} open={openGroup === m.label}
               onToggle={() => setOpenGroup(openGroup === m.label ? null : m.label)} />
           ) : (
             <NavLink key={m.to} to={m.to} end={m.end} onClick={() => setOpen(false)}
               className={({ isActive }) => `menu-item ${isActive ? "active" : ""}`}>
-              <m.icon size={17} /> {m.label}
+              <m.icon size={17} strokeWidth={1.8} /> <span>{m.label}</span>
             </NavLink>
           ))}
         </nav>
         <div className="menu-foot">
-          <button onClick={logout}><LogOut size={17} /> Logout</button>
+          <button onClick={logout}><LogOut size={17} strokeWidth={1.8} /> Logout</button>
         </div>
       </aside>
 
@@ -333,10 +334,11 @@ export default function Layout() {
             <h1>{title}</h1>
             <PageActions />
           </div>
-          <GoogleSearch />
           <div className="right">
-            <span className="date-chip"><CalendarDays size={15} /> {today}</span>
+            <GoogleSearch />
+            <span className="date-chip"><CalendarDays size={16} /> {today}</span>
             <Notifications />
+            <span className="top-divider" />
             <ProfileMenu onLogout={logout} />
           </div>
         </header>

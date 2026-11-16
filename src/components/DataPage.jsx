@@ -11,9 +11,9 @@ import { usePagination } from "./Pagination.jsx";
 /* ---------------- helpers ---------------- */
 const tone = (v) => {
   const s = String(v).toLowerCase();
-  if (["online", "paid", "active", "completed", "on duty", "confirmed", "resolved"].includes(s)) return "st-teal";
+  if (["online", "paid", "active", "completed", "assigned", "confirmed", "resolved"].includes(s)) return "st-teal";
   if (["pending", "partial", "ongoing", "on trip", "booked"].includes(s)) return "st-orange";
-  if (["offline", "inactive", "off duty", "no booking"].includes(s)) return "st-gray";
+  if (["offline", "inactive", "on leave", "no booking"].includes(s)) return "st-gray";
   if (["cancelled", "breakdown"].includes(s)) return "st-red";
   return "st-blue";
 };
@@ -356,7 +356,7 @@ export default function DataPage({
           <label htmlFor={`f_${f.key}`}>{f.label}{f.required && <span className="zreq">*</span>}</label>
           {f.type === "select" ? (
             <select id={`f_${f.key}`} value={form[f.key]} onChange={(e) => set(f.key, e.target.value)}>
-              <option value="">Select</option>
+              <option value="">{f.placeholder || "Select"}</option>
               {f.options.map((o) => <option key={o}>{o}</option>)}
             </select>
           ) : f.type === "file" ? (

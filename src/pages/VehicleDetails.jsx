@@ -189,8 +189,9 @@ export default function VehicleDetails() {
           <Block icon={Car} title="Basic Vehicle Information">
             <Info label="Vehicle ID" value={v.id} />
             <Info label="Registration Number" value={v.regNo} />
-            <Info label="Vehicle Type" value={v.type} />
-            <Info label="Make" value={v.make} />
+            <Info label="Vehicle Name" value={v.vehicleName} />
+            <Info label="Vehicle Category" value={v.type} />
+            <Info label="Brand / Manufacturer" value={v.make} />
             <Info label="Model" value={v.model} />
             <Info label="Manufacturing Year" value={v.year} />
             <Info label="Color" value={v.color} />
@@ -198,7 +199,6 @@ export default function VehicleDetails() {
             <Info label="Engine Number" value={v.engineNo} />
             <Info label="Seating Capacity" value={v.seats} />
             <Info label="Category" value={v.category} />
-            <Info label="RC Book Number" value={v.rcNo} />
             <Info label="Date of Registration" value={v.regDate} kind="date" />
             <div className="vd-item">
               <span className="vd-label">Vehicle Image</span>
@@ -236,13 +236,16 @@ export default function VehicleDetails() {
             <Info label="GPS Device Number" value={v.gpsDeviceNo} />
             <Info label="GPS Status" value={v.gpsStatus} />
             <Info label="Odometer (KM)" value={v.km} kind="num" />
-            <Info label="AC Availability" value={v.ac} />
+            <Info label="Vehicle Type (AC / Non-AC)" value={v.ac} />
             <Info label="Luggage Capacity" value={v.luggage} />
             <Info label="Permit Type" value={v.permitType} />
           </Block>
 
           <Block icon={FileCheck2} title="Document & Compliance Details">
-            <Info label="Insurance Company" value={v.insuranceCompany} />
+            <Info label="RC Number" value={v.rcNo} />
+            <Info label="RC Issue Date" value={v.rcIssueDate} kind="date" />
+            <Info label="RC Expiry" value={v.rcExpiry} kind="date" hint={exp(v.rcExpiry)} />
+            <Info label="Insurer" value={v.insuranceCompany} />
             <Info label="Insurance Policy No" value={v.insuranceNo} />
             <Info label="Insurance Start" value={v.insuranceStart} kind="date" />
             <Info label="Insurance Expiry" value={v.insuranceExpiry} kind="date" hint={exp(v.insuranceExpiry)} />
@@ -252,20 +255,44 @@ export default function VehicleDetails() {
             <Info label="Permit Expiry" value={v.permitExpiry} kind="date" hint={exp(v.permitExpiry)} />
             <Info label="Pollution Certificate No" value={v.pucNo} />
             <Info label="Pollution Expiry" value={v.pucExpiry} kind="date" hint={exp(v.pucExpiry)} />
-            <Info label="Road Tax Expiry" value={v.roadTaxExpiry} kind="date" hint={exp(v.roadTaxExpiry)} />
+            <Info label="Road Tax Paid Date" value={v.roadTaxPaidDate} kind="date" />
+            <Info label="Road Tax Validity" value={v.roadTaxExpiry} kind="date" hint={exp(v.roadTaxExpiry)} />
+            <Info label="National Permit No" value={v.nationalPermitNo} />
+            <Info label="National Permit Validity" value={v.nationalPermitExpiry} kind="date" hint={exp(v.nationalPermitExpiry)} />
+            <Info label="State Permit – State" value={v.statePermitName} />
+            <Info label="State Permit No" value={v.statePermitNo} />
+            <Info label="State Permit Validity" value={v.statePermitExpiry} kind="date" hint={exp(v.statePermitExpiry)} />
             <Info label="Document Verification" value={v.docVerified} />
             <Info label="RC Document" value={v.rcDoc} kind="file" />
             <Info label="Insurance Document" value={v.insuranceDoc} kind="file" />
             <Info label="Fitness Document" value={v.fitnessDoc} kind="file" />
             <Info label="Permit Document" value={v.permitDoc} kind="file" />
             <Info label="Pollution Document" value={v.pucDoc} kind="file" />
+            <Info label="Other Documents" value={v.otherDocs} kind="file" wide />
+          </Block>
+
+          <Block icon={Car} title="Vehicle Photographs">
+            {[["photoFront", "Front"], ["photoRear", "Rear"], ["photoLeft", "Left"], ["photoRight", "Right"]].map(([k, l]) => (
+              <div className="vd-item" key={k}>
+                <span className="vd-label">{l}</span>
+                {v[k] && String(v[k]).startsWith("data:")
+                  ? <img className="vd-img" src={v[k]} alt={`${v.regNo} ${l}`} />
+                  : <span className="vd-value vd-empty">—</span>}
+              </div>
+            ))}
           </Block>
 
           <Block icon={UserRound} title="Driver Assignment Details">
             <Info label="Assigned Driver" value={v.driver} />
             <Info label="Driver ID" value={v.driverId} />
-            <Info label="Driver Contact" value={v.driverContact} />
-            <Info label="Driving License No" value={v.licenseNo} />
+            <Info label="Mobile Number" value={v.driverContact} />
+            <Info label="Alternate Number" value={v.alternateNumber} />
+            <Info label="Driving Licence No" value={v.licenseNo} />
+            <Info label="Licence Type" value={v.licenceType} />
+            <Info label="Aadhaar / ID Proof" value={v.idProof} />
+            <Info label="Residential Address" value={v.driverAddress} wide />
+            <Info label="Experience (Years)" value={v.driverExperience} kind="num" />
+            <Info label="Salary Type" value={v.salaryType} />
             <Info label="License Expiry" value={v.licenseExpiry} kind="date" />
             <Info label="Assignment Date" value={v.driverAssignedDate} kind="date" />
             <Info label="Backup Driver" value={v.backupDriver} />

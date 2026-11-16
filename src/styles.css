@@ -1,7 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap");
 
 :root {
-  --font: Avenir, "Avenir Next", "Nunito Sans", sans-serif;
+  --font: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --bg: #ffffff;
   --soft: #f1f5f9;
   --card: #ffffff;
@@ -1620,9 +1620,9 @@ tbody tr:hover {
   color: #fff;
   border: 1px solid #001d51;
   border-radius: 6px;
-  padding: 7px 16px;
-  font-size: 13px;
-  font-weight: 600;
+  padding: 12px 29px;
+  font-size: 15px;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -1670,9 +1670,9 @@ tbody tr:hover {
   background: none;
   border: 0;
   border-bottom: 3px solid transparent;
-  color: #596083;
+  color: #292c38;
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
   margin-bottom: -1px;
 }
@@ -1879,9 +1879,9 @@ tbody tr:hover {
 
 .zpage .ztable th {
   background: #fff;
-  color: #3b4266;
+  color: #020732;
   font-size: 13.5px;
-  font-weight: 650;
+  font-weight: 500;
   text-transform: none;
   letter-spacing: 0;
   text-align: left;
@@ -1908,6 +1908,7 @@ tbody tr:hover {
 .zpage .ztable td {
   padding: 0 12px;
   height: 34px;
+  font-size: 13px;
   border: 0;
   border-bottom: 1px solid var(--zline);
   border-right: 1px solid var(--zline);
@@ -1953,8 +1954,8 @@ tbody tr:hover {
   background: none;
   border: 0;
   padding: 0;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 500;
+  font-size: 13px;
   color: var(--zink);
   text-align: left;
 }
@@ -1972,8 +1973,8 @@ tbody tr:hover {
 .zpage .ztable td.zst {
   text-align: center;
   color: #fff;
-  font-weight: 600;
-  font-size: 12px;
+  font-weight: 500;
+  font-size: 13px;
   min-width: 100px;
   border-right-color: rgba(255, 255, 255, .35);
 }
@@ -2151,7 +2152,7 @@ tbody tr:hover {
 
 .zf label {
   display: block;
-  font-size: 12.5px;
+  font-size: 14px;
   font-weight: 500;
   margin-bottom: 6px;
   color: #001848;
@@ -2161,15 +2162,35 @@ tbody tr:hover {
   color: #e0314b;
 }
 
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.topbar .right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.gsearch {
+  position: relative;
+  width: 320px;
+  flex-shrink: 0;
+  /* remove any position:absolute, left:50%, or transform rules here */
+}
+
 .zf input:not([type="checkbox"]),
 .zf select {
   width: 100%;
-  height: 36px;
+  height: 38px;
   border: 1px solid #d5dae6;
   border-radius: 6px;
   padding: 0 12px;
-  font-size: 13px;
-  font-family: inherit;
+  font-size: 13.5px;
+
   color: #001848;
   background: #fff;
 }
@@ -2276,6 +2297,7 @@ tbody tr:hover {
   font-weight: 600;
   font-size: 13px;
   font-family: inherit;
+  display: none;
 }
 
 .zlink-b:hover {
@@ -2412,7 +2434,7 @@ tbody tr:hover {
   align-items: center;
   gap: 8px;
   font-size: 14.5px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--zb);
   padding-bottom: 12px;
   margin-bottom: 14px;
@@ -2426,11 +2448,11 @@ tbody tr:hover {
 }
 
 .vf-hint {
-  display: block;
+  display: none;
   margin-top: 5px;
-  font-size: 12px;
+  font-size: 10px;
   color: #d97706;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .vf-alert {
@@ -2449,8 +2471,14 @@ tbody tr:hover {
 .vf-actions {
   display: flex;
   gap: 10px;
-  padding: 6px 0 24px;
+  padding: 12px 0;
   justify-content: center;
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  background: #fff;
+  border-top: 1px solid #e2e8f0;
+  box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.06);
 }
 
 .vf-empty {
@@ -3482,8 +3510,8 @@ table {
   background: #fff;
   color: #001d51;
   border-color: #cfd5e3;
-  padding: 3px 16px;
-  font-size: 13px;
+  padding: 12px 31px;
+  font-size: 15px;
 }
 
 .zbtn.ghost:hover {

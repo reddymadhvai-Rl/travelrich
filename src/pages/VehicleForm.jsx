@@ -312,7 +312,7 @@ export default function VehicleForm() {
           )}
         </Section>
 
-        <Section icon={Camera} title="Vehicle Photographs">
+        <Section icon={Camera} title="Vehicle Images">
           {[["photoFront", "Front"], ["photoRear", "Rear"], ["photoLeft", "Left"], ["photoRight", "Right"]].map(([k, l]) => (
             <div key={k} className={`zf ${errors[k] ? "vf-err" : ""}`}>
               <label htmlFor={`v_${k}`}>{l} Photo</label>

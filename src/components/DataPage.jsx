@@ -14,10 +14,10 @@ const NO_STORE = createStore([]);
 /* ---------------- helpers ---------------- */
 const tone = (v) => {
   const s = String(v).toLowerCase();
-  if (["online", "paid", "active", "completed", "assigned", "confirmed", "resolved"].includes(s)) return "st-teal";
-  if (["pending", "partial", "ongoing", "on trip", "booked"].includes(s)) return "st-orange";
+  if (["online", "paid", "active", "completed", "assigned", "confirmed", "resolved", "closed", "returned"].includes(s)) return "st-teal";
+  if (["pending", "partial", "partially paid", "ongoing", "on trip", "booked", "under review", "under maintenance"].includes(s)) return "st-orange";
   if (["offline", "inactive", "on leave", "no booking"].includes(s)) return "st-gray";
-  if (["cancelled", "breakdown"].includes(s)) return "st-red";
+  if (["cancelled", "breakdown", "disputed", "overdue", "damaged"].includes(s)) return "st-red";
   return "st-blue";
 };
 const pad = (n) => String(n).padStart(2, "0");
@@ -166,6 +166,7 @@ function PasswordInput({ id, value, onChange, placeholder }) {
 }
 
 /**
+ * Pass newPath / editPath(row) to add & edit on a full page (route) instead of the side drawer.
  * Zoho-style list page + right-side "New ..." drawer.
  * columns: [{ key, label, icon, primary?, badge?, money?, id? }]
  * fields:  [{ key, label, type?, options?, required?, half?, default?, placeholder? }]
@@ -173,7 +174,7 @@ function PasswordInput({ id, value, onChange, placeholder }) {
  */
 export default function DataPage({
   title, singular, subtitle, columns, fields = [], initial, idPrefix = "ID", tabs = [], readOnly = false, trackOf,
-  filters, headActions, transform, store,
+  filters, headActions, transform, store, newPath, editPath, noDuplicate,
 }) {
   /* optional shared store (Master Data) – otherwise rows live in local state */
   const shared = useStore(store || NO_STORE);
@@ -229,11 +230,16 @@ export default function DataPage({
   const filterOptions = filterCol ? [...new Set(rows.map((r) => r[filterCol.key]))] : [];
 
   /* ---- drawer ---- */
-  const openNew = () => { setEditId(null); setForm(blank()); setErrors({}); setDrawer(true); };
+  const openNew = () => {
+    if (newPath) { navigate(newPath); return; }
+    setEditId(null); setForm(blank()); setErrors({}); setDrawer(true);
+  };
   useEffect(() => {
-    if (location.state?.openNew && !readOnly) { openNew(); navigate(location.pathname, { replace: true, state: null }); }
+    if (location.state?.openNew && !readOnly && !newPath) { openNew(); navigate(location.pathname, { replace: true, state: null }); }
+    else if (location.state?.toast) { flash(location.state.toast); navigate(location.pathname, { replace: true, state: null }); }
   }, [location.state]); // eslint-disable-line
   const openEdit = (r) => {
+    if (editPath) { navigate(editPath(r)); return; }
     const f = blank();
     fields.forEach((fl) => { const v = r[fl.key]; f[fl.key] = fl.type === "date" ? toInput(v) : v ?? f[fl.key]; });
     setEditId(r.id); setForm(withComputed(f)); setErrors({}); setDrawer(true);
@@ -326,6 +332,8 @@ export default function DataPage({
     if (f.type === "file") return Array.isArray(v) && v.length ? <span className="zfiles">{v.map((x, i) => <a key={i} href={x.url} target="_blank" rel="noreferrer"><Paperclip size={12} />{x.name}</a>)}</span> : "—";
     if (f.type === "password") return "••••••••";
     if (f.type === "rich") return stripHtml(v) || "—";
+    if (f.type === "date" && /^\d{4}-\d{2}-\d{2}$/.test(v || "")) return fromInput(v);
+    if (f.type === "number" && f.label.includes("₹") && v !== "" && v != null) return money(v);
     if (f.type === "checkbox") return v ? "Yes" : "No";
     if (Array.isArray(v)) return v.length ? v.join(", ") : "—";
     if (f.type === "number" && f.label.includes("₹")) return money(v);
@@ -345,6 +353,7 @@ export default function DataPage({
       ) : <span className="zmuted">—</span>;
     }
     if (c.money) return money(v);
+    if (c.date) return /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? fromInput(v) : <span className="zmuted">—</span>;
     if (Array.isArray(v)) return v.length ? <span className="zclip" title={v.join(", ")}>{v.join(", ")}</span> : <span className="zmuted">—</span>;
     if (c.rich) { const t = stripHtml(v); return t ? <span className="zclip" title={t}>{t}</span> : <span className="zmuted">—</span>; }
     if (c.primary) return readOnly ? <b>{v}</b> : <button type="button" className="zlink" onClick={() => openEdit(r)}>{v}</button>;
@@ -503,7 +512,7 @@ export default function DataPage({
                         <button className="del" onClick={() => remove(r)} title="Delete" aria-label="Delete"><Trash2 size={16} /></button>
                         <Menu align="right" fixed trigger={() => <button title="More" aria-label="More"><MoreHorizontal size={16} /></button>}>
                           <button onClick={() => setViewRow(r)}><Eye size={15} /> View</button>
-                          <button onClick={() => duplicate(r)}><Copy size={15} /> Duplicate</button>
+                          {!noDuplicate && <button onClick={() => duplicate(r)}><Copy size={15} /> Duplicate</button>}
                         </Menu>
                       </span>
                     </td>

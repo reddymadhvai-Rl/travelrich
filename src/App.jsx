@@ -9,7 +9,6 @@ import {
   PaymentsPage,
   ExpenseHeadsPage,
   UsersPage,
-  CompaniesPage,
 } from "./pages/Pages.jsx";
 import TrackingPage, { TrackingMapPage } from "./pages/Tracking.jsx";
 import { TodayAttendance, MonthAttendance, AddAttendance } from "./pages/Attendance.jsx";
@@ -20,8 +19,9 @@ import VehicleDetails from "./pages/VehicleDetails.jsx";
 import PaymentHistory from "./pages/PaymentHistory.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import {
-  PurchasesPage, ChallansPage, BranchesPage, FuelTypesPage, VehicleCategoriesPage, VehicleTypesPage,
+  PurchasesPage, ChallansPage, AssignmentsPage, BranchesPage, FuelTypesPage, VehicleCategoriesPage, VehicleTypesPage,
 } from "./pages/Fleet.jsx";
+import { ChallanForm, PurchaseForm, AssignmentForm } from "./pages/FleetForms.jsx";
 import PayrollPage, { PayslipPage } from "./pages/Payroll.jsx";
 
 export const isLoggedIn = () => localStorage.getItem("travel_admin_auth") === "1";
@@ -55,9 +55,15 @@ export default function App() {
         <Route path="/attendance/today" element={<TodayAttendance />} />
         <Route path="/attendance/add" element={<AddAttendance />} />
         <Route path="/attendance/month" element={<MonthAttendance />} />
-        <Route path="/companies" element={<CompaniesPage />} />
+        <Route path="/company-assignments" element={<AssignmentsPage />} />
+        <Route path="/company-assignments/new" element={<AssignmentForm />} />
+        <Route path="/company-assignments/:id/edit" element={<AssignmentForm />} />
         <Route path="/purchases" element={<PurchasesPage />} />
+        <Route path="/purchases/new" element={<PurchaseForm />} />
+        <Route path="/purchases/:id/edit" element={<PurchaseForm />} />
         <Route path="/challans" element={<ChallansPage />} />
+        <Route path="/challans/new" element={<ChallanForm />} />
+        <Route path="/challans/:id/edit" element={<ChallanForm />} />
         <Route path="/master" element={<Navigate to="/master/branches" replace />} />
         <Route path="/master/branches" element={<BranchesPage />} />
         <Route path="/master/fuel-types" element={<FuelTypesPage />} />

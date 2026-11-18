@@ -6,7 +6,7 @@ import {
   ChevronDown, User, Settings, ShieldCheck, TriangleAlert, UserX, Wallet,
   Globe, Clock, CheckCheck, Wrench, List, Plus, Tag, ClipboardCheck, UserCheck, MoreVertical, Printer, RefreshCw, Home,
   Building2, Banknote, History, CalendarRange, CalendarPlus,
-  ShoppingCart, FileWarning, Database, Fuel, Layers, Snowflake,
+  ShoppingCart, FileWarning, ClipboardList, Database, Fuel, Layers, Snowflake,
 } from "lucide-react";
 import { drivers, bookings } from "../data.js";
 import { useVehicles } from "../vehicleStore.js";
@@ -49,9 +49,14 @@ const menu = [
       { label: "Expense Heads", to: "/expense-heads", icon: Tag },
     ],
   },
-  { label: "Companies", icon: Building2, children: manageAdd({ label: "Companies", to: "/companies" }, "Company") },
-  { label: "Purchases", icon: ShoppingCart, children: manageAdd({ label: "Purchases", to: "/purchases" }, "Purchase") },
-  { label: "Challans", icon: FileWarning, children: manageAdd({ label: "Challans", to: "/challans" }, "Challan") },
+  {
+    label: "Companies", icon: ClipboardList, children: [
+      { label: "Add ", to: "/company-assignments/new", icon: Plus },
+      { label: "Manage ", to: "/company-assignments", icon: List },
+    ],
+  },
+  { label: "Purchases", icon: ShoppingCart, children: manageAdd({ label: "Purchases", to: "/purchases" }, "Purchase", "/purchases/new") },
+  { label: "Challans", icon: FileWarning, children: manageAdd({ label: "Challans", to: "/challans" }, "Challan", "/challans/new") },
   {
     label: "Payments", icon: CreditCard, children: [
       ...manageAdd({ label: "Payments", to: "/payments" }, "Payment"),

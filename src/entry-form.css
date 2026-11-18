@@ -1,0 +1,58 @@
+/* Shared styles for the full-page entry forms (Challan, Vehicle Purchase, Company Vehicle Assignment) */
+.ef .zf textarea {
+  width: 100%; box-sizing: border-box; min-height: 72px; padding: 9px 12px;
+  border: 1px solid #d6dbe3; border-radius: 6px; background: #fff; color: inherit;
+  font: inherit; font-size: 14px; line-height: 1.4; resize: vertical; outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.ef .zf textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, .12); }
+.ef .zf textarea:disabled,
+.ef .zf select:disabled,
+.ef .zf input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+
+.ef .zf .vf-file-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
+.ef .zf .vf-file {
+  display: flex; align-items: center; gap: 10px; width: 100%; box-sizing: border-box;
+  min-height: 38px; padding: 4px 10px 4px 4px; border: 1px solid #d6dbe3; border-radius: 6px;
+  background: #fff; cursor: pointer; transition: border-color .15s, box-shadow .15s;
+}
+.ef .zf label.vf-file { display: flex; margin: 0; font-weight: 400; }
+.ef .zf .vf-file:hover { border-color: #2563eb; }
+.ef .zf .vf-file:focus-within { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, .12); }
+.ef .zf .vf-file-btn { flex: none; padding: 6px 12px; border-radius: 6px; background: #eef2f7; color: #1e293b; font-size: 13px; font-weight: 500; }
+.ef .zf .vf-file-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #94a3b8; font-size: 13px; }
+.ef .zf .vf-file.has .vf-file-name { color: #334155; }
+.ef .zf .vf-file-clear { flex: none; border: 0; background: transparent; color: #94a3b8; font-size: 18px; line-height: 1; cursor: pointer; padding: 0 2px; }
+.ef .zf .vf-file-clear:hover { color: #dc2626; }
+.ef .ef-fileinfo { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 5px; font-size: 11.5px; }
+.ef .ef-fileinfo a { color: #0a3d8f; text-decoration: none; }
+.ef .ef-fileinfo a:hover { text-decoration: underline; }
+.ef .ef-preview { display: block; margin-top: 6px; max-height: 90px; max-width: 100%; border-radius: 6px; object-fit: cover; border: 1px solid #e2e8f0; }
+
+.ef .vf-dp { width: 100%; display: block; }
+.ef .react-datepicker-popper { z-index: 50; }
+.ef .react-datepicker__year--container { width: 100%; }
+
+/* auto-filled / auto-calculated fields */
+.ef .zf input[readonly] { background: #f1f5f9; color: #475569; cursor: default; }
+.ef .ef-auto input { font-weight: 600; }
+.ef .vf-hint { display: block; margin-top: 5px; font-size: 11px; color: #64748b; font-weight: 400; }
+
+/* searchable dropdown */
+.ef .ss { position: relative; }
+.ef .zf .ss input { padding-right: 32px; }
+.ef .ss-chev { position: absolute; right: 10px; top: 12px; color: #94a3b8; pointer-events: none; }
+.ef .ss-x { position: absolute; right: 6px; top: 7px; width: 24px; height: 24px; display: grid; place-items: center; border: 0; background: transparent; color: #94a3b8; border-radius: 4px; cursor: pointer; }
+.ef .ss-x:hover { color: #dc2626; background: #fee2e2; }
+.ef .ss-list {
+  position: absolute; z-index: 40; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none;
+  max-height: 220px; overflow: auto; background: #fff; border: 1px solid #d6dbe3; border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, .14);
+}
+.ef .ss-list li { padding: 8px 10px; font-size: 13.5px; border-radius: 4px; cursor: pointer; color: #001848; }
+.ef .ss-list li.hi { background: #eef3fb; }
+.ef .ss-list li.sel { font-weight: 600; color: #0a3d8f; }
+.ef .ss-list li.empty { color: #94a3b8; cursor: default; }
+
+/* error state */
+.ef .vf-err input, .ef .vf-err select, .ef .vf-err textarea, .ef .vf-err .vf-file { border-color: #dc2626; }

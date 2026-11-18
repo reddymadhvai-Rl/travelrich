@@ -1,105 +1,108 @@
 import {
   ShoppingCart, FileWarning, Car, UserRound, CalendarDays, IndianRupee, Wallet, FileText, Tag, MapPin, Activity,
   Hash, Store as StoreIcon, CircleCheck, Hourglass, Building2, Phone, Fuel, Layers, Snowflake, Package, CreditCard,
+  ClipboardList, UserCheck,
 } from "lucide-react";
 import DataPage from "../components/DataPage.jsx";
-import { purchases, challans, drivers } from "../data.js";
-import { useVehicles } from "../vehicleStore.js";
+import { flattenFields } from "../components/EntryForm.jsx";
 import { branchStore, fuelTypeStore, categoryStore, vehicleTypeStore } from "../masterStore.js";
+import { purchaseStore, challanStore, assignmentStore, CHALLAN_TYPES, ASSIGNED_TO, VEHICLE_BRANDS } from "../fleetStore.js";
+import { challanSections, purchaseSections, assignmentSections } from "./FleetForms.jsx";
 
 const STATUS = ["Active", "Inactive"];
 const statusField = { key: "status", label: "Status", type: "select", options: STATUS, default: "Active", half: true };
 const statusCol = { key: "status", label: "Status", icon: Activity, badge: true };
-const driverNames = drivers.map((d) => d.name);
 
-/* ======================= Purchases ======================= */
-const PURCHASE_CATEGORIES = ["Vehicle Purchase", "Spare Parts", "Tyres", "Fuel", "Accessories", "Other"];
-const PAY_MODES = ["Cash", "UPI", "Card", "Bank Transfer", "Cheque"];
+/* ======================= Vehicle Purchases (full-page add / edit) ======================= */
+/* label/type tweaks so the config-driven form fields can also feed the "View" dialog */
+const viewFields = (sections) =>
+  flattenFields(sections).map((f) => ({ ...f, label: typeof f.label === "function" ? "Assigned To (Name)" : f.label, type: f.type === "image" ? "file" : f.type }));
+const NO_LISTS = { vehicles: [], branches: [], categories: [], vehicleTypes: [], fuelTypes: [] };
 
-export const PurchasesPage = () => {
-  const vehicleNos = useVehicles().map((v) => v.regNo);
-  return (
-    <DataPage
-      title="Purchases" singular="Purchase" idPrefix="PU" initial={purchases}
-      subtitle="Purchases made for vehicle transportation – who you bought from, what, and who paid"
-      filters={{ dateKey: "date", select: { key: "category", label: "Category", options: PURCHASE_CATEGORIES } }}
-      tabs={[{ label: "All Purchases", icon: ShoppingCart }]}
-      columns={[
-        { key: "id", label: "ID", id: true },
-        { key: "date", label: "Date", icon: CalendarDays },
-        { key: "purchasedFrom", label: "Purchased From", icon: StoreIcon, primary: true },
-        { key: "item", label: "Item", icon: Package },
-        { key: "category", label: "Category", icon: Tag },
-        { key: "vehicle", label: "Vehicle", icon: Car },
-        { key: "qty", label: "Qty", icon: Hash },
-        { key: "amount", label: "Amount", icon: IndianRupee, money: true },
-        { key: "mode", label: "Payment Mode", icon: CreditCard },
-        { key: "paidBy", label: "Paid By", icon: Wallet },
-        { key: "spentBy", label: "Spent By", icon: UserRound },
-      ]}
-      fields={[
-        { key: "purchasedFrom", label: "Purchased From", required: true, placeholder: "Supplier / shop / dealer name" },
-        { key: "date", label: "Date", type: "date", required: true, half: true },
-        { key: "category", label: "Category", type: "select", options: PURCHASE_CATEGORIES, required: true, half: true },
-        { key: "item", label: "Item / Description", required: true, placeholder: "e.g. Brake pads, tyres, diesel" },
-        { key: "vehicle", label: "Vehicle (optional)", type: "select", options: vehicleNos, placeholder: "No vehicle", half: true },
-        { key: "qty", label: "Quantity", type: "number", default: 1, half: true },
-        { key: "amount", label: "Amount (₹)", type: "number", required: true, half: true },
-        { key: "mode", label: "Payment Mode", type: "select", options: PAY_MODES, half: true },
-        { key: "paidBy", label: "Paid By", placeholder: "Who paid the amount", half: true },
-        { key: "spentBy", label: "Spent By", placeholder: "Who spent the amount", half: true },
-        { key: "note", label: "Note" },
-      ]}
-    />
-  );
-};
+export const PurchasesPage = () => (
+  <DataPage
+    title="Vehicle Purchases" singular="Vehicle Purchase" idPrefix="PU" store={purchaseStore}
+    newPath="/purchases/new" editPath={(r) => `/purchases/${r.id}/edit`} noDuplicate
+    subtitle="Vehicles purchased – seller, invoice, cost, payment and documents"
+    filters={{ dateKey: "purchaseDate", select: { key: "brand", label: "Brand", options: VEHICLE_BRANDS } }}
+    tabs={[
+      { label: "All Purchases", icon: ShoppingCart },
+      { label: "Payment Pending", icon: Hourglass, test: (r) => r.payStatus !== "Paid" },
+      { label: "Paid", icon: CircleCheck, test: (r) => r.payStatus === "Paid" },
+    ]}
+    columns={[
+      { key: "id", label: "ID", id: true },
+      { key: "vehicleNo", label: "Vehicle Number", icon: Car, primary: true },
+      { key: "brand", label: "Brand", icon: Tag },
+      { key: "model", label: "Model", icon: Car },
+      { key: "purchaseDate", label: "Purchase Date", icon: CalendarDays, date: true },
+      { key: "purchaseType", label: "Type", icon: Layers },
+      { key: "sellerName", label: "Seller / Dealer", icon: StoreIcon },
+      { key: "invoiceNo", label: "Invoice No", icon: Hash },
+      { key: "total", label: "Total Amount", icon: IndianRupee, money: true },
+      { key: "payStatus", label: "Payment", icon: CreditCard, badge: true },
+      { key: "vehicleStatus", label: "Vehicle Status", icon: Activity, badge: true },
+    ]}
+    fields={viewFields(purchaseSections(NO_LISTS))}
+  />
+);
 
-/* ======================= Challans ======================= */
-const VIOLATIONS = [
-  "Over Speeding", "Signal Jumping", "No Parking", "Wrong Parking", "No Seat Belt", "Overloading",
-  "Permit Violation", "Documents Not Carried", "Other",
-];
+/* ======================= Vehicle Challans (full-page add / edit) ======================= */
+export const ChallansPage = () => (
+  <DataPage
+    title="Challans" singular="Challan" idPrefix="CH" store={challanStore}
+    newPath="/challans/new" editPath={(r) => `/challans/${r.id}/edit`} noDuplicate
+    subtitle="Traffic challans raised against your vehicles and drivers"
+    filters={{ dateKey: "date", select: { key: "challanType", label: "Challan Type", options: CHALLAN_TYPES } }}
+    tabs={[
+      { label: "All Challans", icon: FileWarning },
+      { label: "Pending", icon: Hourglass, test: (r) => r.payStatus === "Pending" },
+      { label: "Paid", icon: CircleCheck, test: (r) => r.payStatus === "Paid" },
+    ]}
+    columns={[
+      { key: "id", label: "ID", id: true },
+      { key: "challanNo", label: "Challan No", icon: Hash, primary: true },
+      { key: "date", label: "Challan Date", icon: CalendarDays, date: true },
+      { key: "vehicle", label: "Vehicle", icon: Car },
+      { key: "driver", label: "Driver", icon: UserRound },
+      { key: "challanType", label: "Challan Type", icon: Tag },
+      { key: "location", label: "Location", icon: MapPin },
+      { key: "total", label: "Total Amount", icon: IndianRupee, money: true },
+      { key: "payStatus", label: "Payment", icon: CreditCard, badge: true },
+      { key: "challanStatus", label: "Challan Status", icon: Activity, badge: true },
+    ]}
+    fields={viewFields(challanSections(NO_LISTS))}
+  />
+);
 
-export const ChallansPage = () => {
-  const vehicleNos = useVehicles().map((v) => v.regNo);
-  return (
-    <DataPage
-      title="Challans" singular="Challan" idPrefix="CH" initial={challans}
-      subtitle="Traffic challans raised against your vehicles and drivers"
-      filters={{ dateKey: "date", select: { key: "violation", label: "Violation", options: VIOLATIONS } }}
-      tabs={[
-        { label: "All Challans", icon: FileWarning },
-        { label: "Pending", icon: Hourglass, test: (r) => r.status === "Pending" },
-        { label: "Paid", icon: CircleCheck, test: (r) => r.status === "Paid" },
-      ]}
-      columns={[
-        { key: "id", label: "ID", id: true },
-        { key: "challanNo", label: "Challan No", icon: Hash, primary: true },
-        { key: "date", label: "Challan Date", icon: CalendarDays },
-        { key: "vehicle", label: "Vehicle", icon: Car },
-        { key: "driver", label: "Driver", icon: UserRound },
-        { key: "violation", label: "Violation", icon: Tag },
-        { key: "location", label: "Location", icon: MapPin },
-        { key: "amount", label: "Fine Amount", icon: IndianRupee, money: true },
-        { key: "dueDate", label: "Due Date", icon: CalendarDays },
-        { key: "status", label: "Status", icon: Activity, badge: true },
-      ]}
-      fields={[
-        { key: "challanNo", label: "Challan Number", required: true, placeholder: "TS-CH-000000", half: true },
-        { key: "date", label: "Challan Date", type: "date", required: true, half: true },
-        { key: "vehicle", label: "Vehicle", type: "select", options: vehicleNos, required: true, half: true },
-        { key: "driver", label: "Driver", type: "select", options: driverNames, half: true },
-        { key: "violation", label: "Violation", type: "select", options: VIOLATIONS, required: true, half: true },
-        { key: "location", label: "Location", placeholder: "Where it was issued", half: true },
-        { key: "amount", label: "Fine Amount (₹)", type: "number", required: true, half: true },
-        { key: "dueDate", label: "Due Date", type: "date", half: true },
-        { key: "status", label: "Status", type: "select", options: ["Pending", "Paid", "Disputed"], default: "Pending", required: true, half: true },
-        { key: "paidBy", label: "Paid By", placeholder: "Who paid the fine", half: true },
-        { key: "note", label: "Note" },
-      ]}
-    />
-  );
-};
+/* ======================= Company Vehicle Assignments (full-page add / edit) ======================= */
+export const AssignmentsPage = () => (
+  <DataPage
+    title="Vehicle Assignments" singular="Assignment" idPrefix="AS" store={assignmentStore}
+    newPath="/company-assignments/new" editPath={(r) => `/company-assignments/${r.id}/edit`} noDuplicate
+    subtitle="Company vehicles assigned to employees, departments, branches or clients – with handover and return"
+    filters={{ dateKey: "assignmentDate", select: { key: "assignedTo", label: "Assigned To", options: ASSIGNED_TO } }}
+    tabs={[
+      { label: "All Assignments", icon: ClipboardList },
+      { label: "Assigned", icon: UserCheck, test: (r) => r.status === "Assigned" },
+      { label: "Overdue", icon: Hourglass, test: (r) => r.status === "Overdue" },
+      { label: "Returned", icon: CircleCheck, test: (r) => r.status === "Returned" },
+    ]}
+    columns={[
+      { key: "id", label: "ID", id: true },
+      { key: "assignmentNo", label: "Assignment No", icon: Hash, primary: true },
+      { key: "vehicle", label: "Vehicle", icon: Car },
+      { key: "assignedTo", label: "Assigned To", icon: Layers },
+      { key: "assignee", label: "Name", icon: UserRound },
+      { key: "purpose", label: "Purpose", icon: Tag },
+      { key: "assignmentDate", label: "Assigned On", icon: CalendarDays, date: true },
+      { key: "expectedReturn", label: "Expected Return", icon: CalendarDays, date: true },
+      { key: "returnDate", label: "Returned On", icon: CalendarDays, date: true },
+      { key: "status", label: "Status", icon: Activity, badge: true },
+    ]}
+    fields={viewFields(assignmentSections(NO_LISTS))}
+  />
+);
 
 /* ======================= Master Data ======================= */
 export const BranchesPage = () => (

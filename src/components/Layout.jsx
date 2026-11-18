@@ -51,8 +51,8 @@ const menu = [
   },
   {
     label: "Companies", icon: ClipboardList, children: [
-      { label: "Add ", to: "/company-assignments/new", icon: Plus },
-      { label: "Manage ", to: "/company-assignments", icon: List },
+      { label: "Add Company Vehicle  ", to: "/company-assignments/new", icon: Plus },
+      { label: "Manage Company Vehicle  ", to: "/company-assignments", icon: List },
     ],
   },
   { label: "Purchases", icon: ShoppingCart, children: manageAdd({ label: "Purchases", to: "/purchases" }, "Purchase", "/purchases/new") },

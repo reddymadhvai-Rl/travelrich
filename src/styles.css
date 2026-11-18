@@ -2374,22 +2374,39 @@ tbody tr:hover {
   font-weight: 600;
 }
 
+/* logo: white background only on the logo image itself (no box around it) */
 .login-logo {
   display: inline-block;
-  background: #fff;
-  border-radius: 6px;
-  padding: 14px 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
 }
 
 .login-logo img {
   display: block;
-  width: 230px;
+  box-sizing: border-box;
+  width: 270px;
   height: auto;
+  padding: 14px 20px;
+  background: #fff;
+  border-radius: 6px;
 }
 
+/* vehicle picture – full height of the hero panel */
 .login-hero::after {
-  background: rgba(245, 166, 35, .12);
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 60%;
+  height: 100%;
+  border-radius: 0;
+  background: url("./assets/login-vehicle.svg") no-repeat right bottom / contain;
+  opacity: .22;
+  pointer-events: none;
+}
+
+.login-hero > * {
+  position: relative;
+  z-index: 1;
 }
 
 .zclip {

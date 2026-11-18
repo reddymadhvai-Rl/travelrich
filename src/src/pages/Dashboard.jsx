@@ -157,14 +157,13 @@ export default function Dashboard() {
     { icon: Wifi, tone: "green", value: online, label: "Online Vehicles", sub: "Live tracking" },
     { icon: WifiOff, tone: "slate", value: totalVehicles - online, label: "Offline Vehicles", sub: "Not reporting" },
     { icon: CalendarCheck, tone: "teal", value: bookings.length, label: "Total Bookings", sub: "All time" },
-  ];
-  const row2 = [
-    { icon: Route, tone: "cyan", value: onTrip, label: "Vehicles On Trip", sub: "Running now" },
+     { icon: Route, tone: "cyan", value: onTrip, label: "Vehicles On Trip", sub: "Running now" },
     { icon: Navigation, tone: "amber", value: todayTrips, label: "Today's Trips", sub: "In progress" },
     { icon: TriangleAlert, tone: "red", value: breakdownsToday.length, label: "Today's Breakdowns", sub: "Reported today" },
     { icon: UserX, tone: "pink", value: onLeaveToday.length, label: "Employees On Leave", sub: "Today" },
     { icon: Wallet, tone: "emerald", value: "₹" + pending.toLocaleString("en-IN"), label: "Pending Payments", sub: "To collect" },
   ];
+
 
   const pie = [
     { name: "On Trip", value: onTrip, color: "#0a3d8f", icon: Route },
@@ -196,7 +195,7 @@ export default function Dashboard() {
       </section>
 
       <div className="stat-grid">{row1.map((s) => <Stat key={s.label} {...s} />)}</div>
-      <div className="stat-grid">{row2.map((s) => <Stat key={s.label} {...s} />)}</div>
+      {/* <div className="stat-grid">{row2.map((s) => <Stat key={s.label} {...s} />)}</div> */}
 
       <div className="grid-2">
         {/* Important vehicle alerts */}

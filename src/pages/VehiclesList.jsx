@@ -101,8 +101,8 @@ export default function VehiclesList() {
                     <td>{v.seats}</td>
                     <td>{v.fuel}</td>
                     <td>{v.ownership}</td>
-                    <td className={`zst ${statusTone(v.status)}`}>{v.status}</td>
-                    <td className={`zst ${d.tone}`} title={d.expired.length ? `Expired: ${d.expired.join(", ")}` : d.soon.length ? `Expiring: ${d.soon.join(", ")}` : ""}>{d.label}</td>
+                    <td className="zst"><span className={`zpill ${statusTone(v.status)}`}>{v.status}</span></td>
+                    <td className="zst" title={d.expired.length ? `Expired: ${d.expired.join(", ")}` : d.soon.length ? `Expiring: ${d.soon.join(", ")}` : ""}><span className={`zpill ${d.tone}`}>{d.label}</span></td>
                     <td>{showDate(v.nextServiceDue) || <span className="zmuted">—</span>}{m !== "Normal" && <span className="vf-sub" style={{ color: m === "Overdue" ? "#dc2626" : "#d97706" }}>{m}</span>}</td>
                     <td className="actcol">
                       <span className="zacts">

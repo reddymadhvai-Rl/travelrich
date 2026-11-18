@@ -18,6 +18,10 @@ import VehiclesList from "./pages/VehiclesList.jsx";
 import VehicleForm from "./pages/VehicleForm.jsx";
 import VehicleDetails from "./pages/VehicleDetails.jsx";
 import PaymentHistory from "./pages/PaymentHistory.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import {
+  PurchasesPage, ChallansPage, BranchesPage, FuelTypesPage, VehicleCategoriesPage, VehicleTypesPage,
+} from "./pages/Fleet.jsx";
 import PayrollPage, { PayslipPage } from "./pages/Payroll.jsx";
 
 export const isLoggedIn = () => localStorage.getItem("travel_admin_auth") === "1";
@@ -30,6 +34,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route
         element={
           <Protected>
@@ -51,6 +56,13 @@ export default function App() {
         <Route path="/attendance/add" element={<AddAttendance />} />
         <Route path="/attendance/month" element={<MonthAttendance />} />
         <Route path="/companies" element={<CompaniesPage />} />
+        <Route path="/purchases" element={<PurchasesPage />} />
+        <Route path="/challans" element={<ChallansPage />} />
+        <Route path="/master" element={<Navigate to="/master/branches" replace />} />
+        <Route path="/master/branches" element={<BranchesPage />} />
+        <Route path="/master/fuel-types" element={<FuelTypesPage />} />
+        <Route path="/master/vehicle-categories" element={<VehicleCategoriesPage />} />
+        <Route path="/master/vehicle-types" element={<VehicleTypesPage />} />
         <Route path="/payroll" element={<PayrollPage />} />
         <Route path="/payroll/:empId" element={<PayslipPage />} />
         <Route path="/payments/history" element={<PaymentHistory />} />

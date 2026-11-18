@@ -6,6 +6,7 @@ import {
   ChevronDown, User, Settings, ShieldCheck, TriangleAlert, UserX, Wallet,
   Globe, Clock, CheckCheck, Wrench, List, Plus, Tag, ClipboardCheck, UserCheck, MoreVertical, Printer, RefreshCw, Home,
   Building2, Banknote, History, CalendarRange, CalendarPlus,
+  ShoppingCart, FileWarning, Database, Fuel, Layers, Snowflake,
 } from "lucide-react";
 import { drivers, bookings } from "../data.js";
 import { useVehicles } from "../vehicleStore.js";
@@ -30,6 +31,14 @@ const manageAdd = (base, singular, addTo) => [
 // sidebar structure: groups get a dropdown (Manage / Add); Users & others stay single links
 const menu = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
+  {
+    label: "Master Data", icon: Database, children: [
+      { label: "Branches", to: "/master/branches", icon: Building2 },
+      { label: "Fuel Types", to: "/master/fuel-types", icon: Fuel },
+      { label: "Vehicle Category", to: "/master/vehicle-categories", icon: Layers },
+      { label: "Vehicle Type", to: "/master/vehicle-types", icon: Snowflake },
+    ],
+  },
   { label: "Vehicles", icon: Car, children: manageAdd({ label: "Vehicles", to: "/vehicles" }, "Vehicle", "/vehicles/new") },
   { label: "Drivers", icon: UserRound, children: manageAdd({ label: "Drivers", to: "/drivers" }, "Driver") },
   { label: "Bookings", icon: CalendarCheck, children: manageAdd({ label: "Bookings", to: "/bookings" }, "Booking") },
@@ -41,6 +50,8 @@ const menu = [
     ],
   },
   { label: "Companies", icon: Building2, children: manageAdd({ label: "Companies", to: "/companies" }, "Company") },
+  { label: "Purchases", icon: ShoppingCart, children: manageAdd({ label: "Purchases", to: "/purchases" }, "Purchase") },
+  { label: "Challans", icon: FileWarning, children: manageAdd({ label: "Challans", to: "/challans" }, "Challan") },
   {
     label: "Payments", icon: CreditCard, children: [
       ...manageAdd({ label: "Payments", to: "/payments" }, "Payment"),

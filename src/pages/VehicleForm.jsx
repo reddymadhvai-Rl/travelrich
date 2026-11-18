@@ -4,9 +4,10 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ArrowLeft, Car, FileCheck2, Camera, UserRound, Clock, TriangleAlert, List } from "lucide-react";
 import { drivers } from "../data.js";
+import { useBranches, useFuelTypes, useCategories, useVehicleTypes } from "../masterStore.js";
 import {
   useVehicles, addVehicle, updateVehicle, nextVehicleId, docState, daysLeft,
-  VEHICLE_TYPES, FUEL_TYPES, OWNERSHIP, PERMIT_TYPES, VEHICLE_STATUS,
+  OWNERSHIP, PERMIT_TYPES, VEHICLE_STATUS,
 } from "../vehicleStore.js";
 
 const MAX_IMAGE_KB = 500;
@@ -14,7 +15,7 @@ const MAX_IMAGE_KB = 500;
 const BLANK = {
   /* Vehicle information */
   regNo: "", vehicleName: "", type: "", ac: "", make: "", model: "", year: "", fuel: "",
-  seats: "", luggage: "", color: "", chassisNo: "", engineNo: "", ownership: "Owned", status: "Active",
+  branch: "", seats: "", luggage: "", color: "", chassisNo: "", engineNo: "", ownership: "Owned", status: "Active",
   /* Documents */
   rcNo: "", rcIssueDate: "", rcExpiry: "", rcDoc: "",
   insuranceNo: "", insuranceCompany: "", insuranceStart: "", insuranceExpiry: "", insuranceDoc: "",
@@ -60,6 +61,12 @@ export default function VehicleForm() {
   const { id } = useParams();
   const nav = useNavigate();
   const vehicles = useVehicles();
+  const categories = useCategories();
+  const fuelTypes = useFuelTypes();
+  const vehicleTypes = useVehicleTypes();
+  const branches = useBranches();
+  // keep a vehicle's saved value selectable even if its master record was later deactivated
+  const withCur = (list, cur) => (cur && !list.includes(cur) ? [...list, cur] : list);
   const existing = id ? vehicles.find((v) => v.id === id) : null;
   const [form, setForm] = useState(() => {
     if (!existing) return BLANK;
@@ -246,17 +253,18 @@ export default function VehicleForm() {
         <Section icon={Car} title="Vehicle Information">
           {F("regNo", "Vehicle Registration Number", { required: true, placeholder: "TS09AB1234" })}
           {F("vehicleName", "Vehicle Name", { placeholder: "Innova Crysta, Ertiga, Tempo Traveller" })}
-          {F("type", "Vehicle Category", { required: true, options: VEHICLE_TYPES })}
-          {F("ac", "Vehicle Type", { options: ["AC", "Non-AC"] })}
+          {F("type", "Vehicle Category", { required: true, options: withCur(categories, form.type) })}
+          {F("ac", "Vehicle Type", { options: withCur(vehicleTypes, form.ac) })}
           {F("make", "Brand / Manufacturer", { required: true, placeholder: "Toyota, Maruti, Force" })}
           {F("model", "Model", { required: true, placeholder: "Innova Crysta" })}
           {F("year", "Manufacturing Year", { type: "number", placeholder: "2024" })}
-          {F("fuel", "Fuel Type", { required: true, options: FUEL_TYPES })}
+          {F("fuel", "Fuel Type", { required: true, options: withCur(fuelTypes, form.fuel) })}
           {F("seats", "Seating Capacity", { type: "number", required: true, placeholder: "7 (excluding driver)" })}
           {F("luggage", "Luggage Capacity", { placeholder: "Number of bags" })}
           {F("color", "Vehicle Colour", { placeholder: "White" })}
           {F("chassisNo", "Chassis Number")}
           {F("engineNo", "Engine Number")}
+          {F("branch", "Branch", { options: withCur(branches, form.branch) })}
           {F("ownership", "Ownership Type", { required: true, options: OWNERSHIP })}
           {F("status", "Vehicle Status", { options: VEHICLE_STATUS })}
         </Section>

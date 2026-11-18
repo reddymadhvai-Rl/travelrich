@@ -139,7 +139,7 @@ export default function TrackingPage() {
                   <td>{r.driver}</td>
                   <td>{r.location}</td>
                   <td>{r.speed}</td>
-                  <td className={`zst ${isMoving(r) ? "st-teal" : "st-gray"}`}>{isMoving(r) ? "Moving" : "Stopped"}</td>
+                  <td className="zst"><span className={`zpill ${isMoving(r) ? "st-teal" : "st-gray"}`}>{isMoving(r) ? "Moving" : "Stopped"}</span></td>
                   <td>{r.updated}</td>
                   <td className="actcol">
                     <span className="zacts">

@@ -1947,7 +1947,7 @@ tbody tr:hover {
 .zpage .ztable td.prim {
   font-weight: 500;
   color: var(--zink);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .zlink {
@@ -1974,7 +1974,7 @@ tbody tr:hover {
   text-align: center;
   color: #fff;
   font-weight: 500;
-  font-size: 13px;
+  font-size: 14px;
   min-width: 100px;
   border-right-color: rgba(255, 255, 255, .35);
 }
@@ -2006,7 +2006,7 @@ tbody tr:hover {
 .zpage .ztable td.actcol,
 .zpage .ztable th.actcol {
   width: 1%;
-  padding: 0 12px;
+  padding: 7px 12px;
   white-space: nowrap;
 }
 
@@ -3510,8 +3510,8 @@ table {
   background: #fff;
   color: #001d51;
   border-color: #cfd5e3;
-  padding: 12px 31px;
-  font-size: 15px;
+  padding: 6px 19px;
+  font-size: 14px;
 }
 
 .zbtn.ghost:hover {
@@ -4941,6 +4941,13 @@ tr.att-sel td {
   .cp-card {
     grid-template-columns: 1fr;
     max-width: 460px;
+  }
+
+  .vf-top {
+    display: block;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
   }
 
   .cp-side {

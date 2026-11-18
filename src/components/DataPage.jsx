@@ -7,6 +7,9 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import { fmtDate } from "../data.js";
 import { usePagination } from "./Pagination.jsx";
+import { useStore, createStore } from "../masterStore.js";
+
+const NO_STORE = createStore([]);
 
 /* ---------------- helpers ---------------- */
 const tone = (v) => {
@@ -170,9 +173,13 @@ function PasswordInput({ id, value, onChange, placeholder }) {
  */
 export default function DataPage({
   title, singular, subtitle, columns, fields = [], initial, idPrefix = "ID", tabs = [], readOnly = false, trackOf,
-  filters, headActions, transform,
+  filters, headActions, transform, store,
 }) {
-  const [rows, setRows] = useState(initial);
+  /* optional shared store (Master Data) – otherwise rows live in local state */
+  const shared = useStore(store || NO_STORE);
+  const [localRows, setLocalRows] = useState(initial);
+  const rows = store ? shared : localRows;
+  const setRows = store ? store.set : setLocalRows;
   const [tab, setTab] = useState(0);
   const [q, setQ] = useState("");
   const [sortMode, setSortMode] = useState("all"); // all | az | za
@@ -199,7 +206,7 @@ export default function DataPage({
   const allTabs = tabs.length ? tabs : [{ label: `All ${title}` }];
 
   const withComputed = (o) => { const n = { ...o }; fields.forEach((f) => { if (f.compute) n[f.key] = f.compute(n); }); return n; };
-  const blank = () => withComputed(Object.fromEntries(fields.map((f) => [f.key, f.type === "checkbox" ? false : f.type === "file" ? [] : f.default ?? ""])));
+  const blank = () => withComputed(Object.fromEntries(fields.map((f) => [f.key, f.type === "checkbox" ? false : f.type === "file" || f.type === "multiselect" ? [] : f.default ?? ""])));
   const flash = (m) => { setToast(m); clearTimeout(timer.current); timer.current = setTimeout(() => setToast(""), 2600); };
   const toggleFav = () => { const n = !fav; setFav(n); localStorage.setItem(`fav_${title}`, n ? "1" : "0"); };
 
@@ -243,8 +250,9 @@ export default function DataPage({
     fields.forEach((f) => {
       const raw = form[f.key];
       const v = typeof raw === "string" ? raw.trim() : raw;
+      const empty = Array.isArray(v) && !v.length;
       const emptyRich = f.type === "rich" && !String(v || "").replace(/<[^>]*>/g, "").trim();
-      if (f.required && (f.type === "rich" ? emptyRich : !v && v !== 0)) err[f.key] = `${f.label} is required`;
+      if (f.required && (f.type === "rich" ? emptyRich : empty || (!v && v !== 0))) err[f.key] = `${f.label} is required`;
       else if (f.type === "tel" && v && String(v).replace(/\D/g, "").length < 10) err[f.key] = "Enter a valid 10 digit number";
       else if (f.type === "email" && v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) err[f.key] = "Enter a valid email address";
       else if (f.type === "password" && v && String(v).length < 6) err[f.key] = "Password must be at least 6 characters";
@@ -319,6 +327,7 @@ export default function DataPage({
     if (f.type === "password") return "••••••••";
     if (f.type === "rich") return stripHtml(v) || "—";
     if (f.type === "checkbox") return v ? "Yes" : "No";
+    if (Array.isArray(v)) return v.length ? v.join(", ") : "—";
     if (f.type === "number" && f.label.includes("₹")) return money(v);
     return v === undefined || v === "" ? "—" : String(v);
   };
@@ -327,7 +336,7 @@ export default function DataPage({
   const cell = (c, r) => {
     const v = r[c.key];
     if (c.id) return <span className="zchip">{typeof r.id === "number" ? `${idPrefix}-${r.id}` : r.id}</span>;
-    if (c.badge) return v;
+    if (c.badge) return v ? <span className={`zpill ${tone(v)}`}>{v}</span> : <span className="zmuted">—</span>;
     if (c.masked) return <span className="zmuted" style={{ letterSpacing: 2 }}>••••••••</span>;
     if (c.files) {
       const n = Array.isArray(v) ? v.length : 0;
@@ -336,6 +345,7 @@ export default function DataPage({
       ) : <span className="zmuted">—</span>;
     }
     if (c.money) return money(v);
+    if (Array.isArray(v)) return v.length ? <span className="zclip" title={v.join(", ")}>{v.join(", ")}</span> : <span className="zmuted">—</span>;
     if (c.rich) { const t = stripHtml(v); return t ? <span className="zclip" title={t}>{t}</span> : <span className="zmuted">—</span>; }
     if (c.primary) return readOnly ? <b>{v}</b> : <button type="button" className="zlink" onClick={() => openEdit(r)}>{v}</button>;
     return v === undefined || v === "" ? <span className="zmuted">—</span> : v;
@@ -359,6 +369,18 @@ export default function DataPage({
               <option value="">{f.placeholder || "Select"}</option>
               {f.options.map((o) => <option key={o}>{o}</option>)}
             </select>
+          ) : f.type === "multiselect" ? (
+            <div className="zmulti">
+              {f.options.length ? f.options.map((o) => {
+                const on = (form[f.key] || []).includes(o);
+                return (
+                  <button type="button" key={o} className={on ? "on" : ""} aria-pressed={on}
+                    onClick={() => set(f.key, on ? form[f.key].filter((x) => x !== o) : [...(form[f.key] || []), o])}>
+                    {on && <Check size={13} />}{o}
+                  </button>
+                );
+              }) : <small className="zmuted">No options available</small>}
+            </div>
           ) : f.type === "file" ? (
             <FilePicker id={`f_${f.key}`} value={form[f.key]} accept={f.accept} onChange={(v) => set(f.key, v)} />
           ) : f.type === "password" ? (
@@ -412,25 +434,6 @@ export default function DataPage({
           </div>
           <div className="zbar-r">
             <div className="zsearch"><input placeholder={`Search ${title.toLowerCase()}`} value={q} onChange={(e) => setQ(e.target.value)} />{q && <button onClick={() => setQ("")} aria-label="Clear"><X size={15} /></button>}</div>
-            {filters && (
-              <div className="zfilters inline">
-            {filters.dateKey && (
-              <>
-                <label>From date<input type="date" value={fFrom} max={fTo || undefined} onChange={(e) => setFFrom(e.target.value)} /></label>
-                <label>To date<input type="date" value={fTo} min={fFrom || undefined} onChange={(e) => setFTo(e.target.value)} /></label>
-              </>
-            )}
-            {filters.select && (
-              <label>{filters.select.label}
-                <select value={fSel} onChange={(e) => setFSel(e.target.value)}>
-                  <option value="">All</option>
-                  {filters.select.options.map((o) => <option key={o}>{o}</option>)}
-                </select>
-              </label>
-            )}
-            {(fFrom || fTo || fSel) && <button type="button" className="zbtn ghost" onClick={() => { setFFrom(""); setFTo(""); setFSel(""); }}><X size={14} /> Clear</button>}
-          </div>
-            )}
             <Menu align="right" trigger={(open) => (
               <button className="zview small">{dense ? <Rows3 size={17} /> : <List size={17} />}{dense ? "Compact" : "List"}<ChevronDown size={15} style={{ transform: open ? "rotate(180deg)" : "none" }} /></button>
             )}>
@@ -453,6 +456,27 @@ export default function DataPage({
           </div>
         </div>
 
+        {/* filters */}
+      {filters && (
+        <div className="zfilters">
+      {filters.dateKey && (
+        <>
+          <label>From date<input type="date" value={fFrom} max={fTo || undefined} onChange={(e) => setFFrom(e.target.value)} /></label>
+          <label>To date<input type="date" value={fTo} min={fFrom || undefined} onChange={(e) => setFTo(e.target.value)} /></label>
+        </>
+      )}
+      {filters.select && (
+        <label>{filters.select.label}
+          <select value={fSel} onChange={(e) => setFSel(e.target.value)}>
+            <option value="">All</option>
+            {filters.select.options.map((o) => <option key={o}>{o}</option>)}
+          </select>
+        </label>
+      )}
+      {(fFrom || fTo || fSel) && <button type="button" className="zbtn ghost" onClick={() => { setFFrom(""); setFTo(""); setFSel(""); }}><X size={14} /> Clear</button>}
+    </div>
+      )}
+
         {/* table */}
         <div className="zscroll">
           <table className={`ztable ${dense ? "dense" : ""}`}>
@@ -469,7 +493,7 @@ export default function DataPage({
               {pageRows.map((r) => (
                 <tr key={r.id} className={r.cancelled ? "row-cancelled" : ""}>
                   {columns.map((c) => (
-                    <td key={c.key} className={c.badge ? `zst ${tone(r[c.key])}` : c.id ? "idcol" : c.primary ? "prim" : ""}>{cell(c, r)}</td>
+                    <td key={c.key} className={c.badge ? "zst" : c.id ? "idcol" : c.primary ? "prim" : ""}>{cell(c, r)}</td>
                   ))}
                   {!readOnly && (
                     <td className="actcol">

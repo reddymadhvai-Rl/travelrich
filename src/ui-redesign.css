@@ -591,6 +591,7 @@ body {
   color: var(--rd-ink);
   padding: 12px 14px;
   border-bottom: 0;
+  white-space: nowrap;
 }
 
 .panel td {
@@ -599,6 +600,7 @@ body {
   color: #0B2341;
   font-size: 13px;
   font-weight: 450;
+  white-space: nowrap;
 }
 
 .panel tbody tr:last-child td {
@@ -974,4 +976,240 @@ body {
 
 .grid-3>.panel .mini-chart {
   flex: 1;
+}
+
+/* ---------- Auth extras (login / forgot password) ---------- */
+.pw-wrap {
+  position: relative;
+}
+
+.pw-wrap input {
+  padding-right: 44px !important;
+}
+
+.pw-wrap button {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: none;
+  color: var(--muted);
+  padding: 6px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.pw-wrap button:hover {
+  color: var(--text, #0f172a);
+}
+
+.auth-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: -2px 0 6px;
+}
+
+.auth-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent, #2563eb);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.auth-link:disabled {
+  color: var(--muted);
+  cursor: default;
+  text-decoration: none;
+}
+
+.auth-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.auth-back:hover {
+  color: var(--accent, #2563eb);
+}
+
+.auth-steps {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.auth-steps i {
+  height: 4px;
+  flex: 1;
+  border-radius: 4px;
+  background: var(--line, #e2e8f0);
+}
+
+.auth-steps i.on {
+  background: var(--accent, #2563eb);
+}
+
+.otp-input {
+  letter-spacing: 10px;
+  font-size: 20px !important;
+  text-align: center;
+  font-weight: 600;
+}
+
+.ok-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #dcfce7;
+  color: #166534;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13.5px;
+  margin-bottom: 12px;
+}
+
+/* multi-select chips in the New/Edit drawer */
+.zmulti {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 150px;
+  overflow: auto;
+  padding: 2px;
+}
+
+.zmulti button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--line, #e2e8f0);
+  background: #fff;
+  color: inherit;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.zmulti button:hover {
+  border-color: var(--accent, #2563eb);
+}
+
+.zmulti button.on {
+  background: #eff6ff;
+  border-color: var(--accent, #2563eb);
+  color: var(--accent, #2563eb);
+  font-weight: 600;
+}
+
+/* ---------- Filter row (From date / To date / select) – evenly aligned ---------- */
+.zfilters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--zline, #e1e5ee);
+  background: #fafbfe;
+}
+
+.zfilters label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #464c54;
+  margin: 0;
+}
+
+.zfilters input,
+.zfilters select {
+  box-sizing: border-box;
+  height: 36px;
+  width: 170px;
+  min-width: 0;
+  padding: 0 10px;
+  line-height: 34px;
+  font-weight: 400;
+}
+
+.zfilters .zbtn {
+  height: 36px;
+}
+
+@media (max-width: 600px) {
+
+  .zfilters label,
+  .zfilters input,
+  .zfilters select {
+    width: 100%;
+  }
+}
+
+/* ---------- Status pills (replace full-cell colour blocks) ---------- */
+.zpage .ztable td.zst,
+.ztable td.zst {
+  background: transparent !important;
+  color: inherit;
+  text-align: left;
+  border-right-color: var(--zline, #e1e5ee);
+  filter: none !important;
+  min-width: 120px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.zpill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: .1px;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.zpill.st-teal {
+  background: #2fb5a9;
+}
+
+.zpill.st-orange {
+  background: #f0a132;
+}
+
+.zpill.st-gray {
+  background: #98a1b5;
+}
+
+.zpill.st-red {
+  background: #e5534b;
+}
+
+.zpill.st-blue {
+  background: #3b82d6;
 }

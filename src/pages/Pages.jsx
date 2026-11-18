@@ -5,8 +5,10 @@ import {
 import DataPage from "../components/DataPage.jsx";
 import { useNavigate } from "react-router-dom";
 import { History, Building2, Mail as MailIcon } from "lucide-react";
+import { useVehicles } from "../vehicleStore.js";
 import { vehicles, drivers, bookings, expenses, expenseHeads, payments, users, companies } from "../data.js";
 
+const SERVICE_TYPES = ["Vehicle Transportation", "Employee Transportation", "School / College Transportation", "Tour & Travel"];
 const VEHICLE_TYPES = ["Swift Dzire", "Ertiga", "Innova", "Innova Crysta", "Tempo Traveller", "Mini Bus", "Volvo Bus"];
 const driverNames = drivers.map((d) => d.name);
 const vehicleNos = vehicles.map((v) => v.number);
@@ -157,29 +159,27 @@ export const ExpensesPage = () => (
     title="Expenses" singular="Expense" idPrefix="EX" initial={expenses}
     subtitle="Click an expense to edit it"
     filters={{ dateKey: "date", select: { key: "category", label: "Expense Head", options: expenseHeads.map((h) => h.name) } }}
-    tabs={[
-      { label: "All Expenses", icon: Receipt },
-      { label: "Fuel", icon: Gauge, test: (r) => r.category === "Fuel" },
-      { label: "Maintenance", icon: ShieldCheck, test: (r) => r.category === "Maintenance" },
-    ]}
+    tabs={[{ label: "All Expenses", icon: Receipt }]}
     columns={[
       { key: "id", label: "ID", id: true },
       { key: "date", label: "Date", icon: CalendarDays },
-      { key: "vehicle", label: "Vehicle", icon: Car, primary: true },
-      { key: "category", label: "Expense Head", icon: Tag },
+      { key: "category", label: "Expense Head", icon: Tag, primary: true },
+      { key: "vehicle", label: "Vehicle", icon: Car },
       { key: "amount", label: "Amount", icon: IndianRupee, money: true },
+      { key: "paidBy", label: "Paid By", icon: Wallet },
+      { key: "spentBy", label: "Spent By", icon: UserRound },
       { key: "note", label: "Note", icon: FileText },
       { key: "receipt", label: "Receipt", icon: Receipt, files: true },
-      { key: "attachments", label: "Attachments", icon: Paperclip, files: true },
     ]}
     fields={[
-      { key: "vehicle", label: "Vehicle", type: "select", options: vehicleNos, required: true, half: true },
       { key: "category", label: "Expense Head", type: "select", options: expenseHeads.map((h) => h.name), required: true, half: true },
+      { key: "vehicle", label: "Vehicle (optional)", type: "select", options: vehicleNos, placeholder: "No vehicle", half: true },
       { key: "date", label: "Date", type: "date", required: true, half: true },
       { key: "amount", label: "Amount (₹)", type: "number", required: true, half: true },
+      { key: "paidBy", label: "Paid By", placeholder: "Who paid the amount", half: true },
+      { key: "spentBy", label: "Spent By", placeholder: "Who spent the amount", half: true },
       { key: "note", label: "Note" },
       { key: "receipt", label: "Receipt", type: "file" },
-      { key: "attachments", label: "Attachments", type: "file" },
     ]}
   />
 );
@@ -247,34 +247,45 @@ export const UsersPage = () => (
   />
 );
 
-export const CompaniesPage = () => (
-  <DataPage
-    title="Companies" singular="Company" idPrefix="CO" initial={companies}
-    subtitle="Companies and customers you do business with"
-    tabs={[
-      { label: "All Companies", icon: Building2 },
-      { label: "Active", icon: UserCheck, test: (r) => r.status === "Active" },
-      { label: "Inactive", icon: UserX, test: (r) => r.status === "Inactive" },
-    ]}
-    columns={[
-      { key: "id", label: "ID", id: true },
-      { key: "name", label: "Company Name", icon: Building2, primary: true },
-      { key: "gst", label: "GST No", icon: FileText },
-      { key: "contact", label: "Contact Person", icon: UserRound },
-      { key: "phone", label: "Phone", icon: Phone },
-      { key: "email", label: "Email", icon: MailIcon },
-      { key: "city", label: "City", icon: MapPin },
-      { key: "status", label: "Status", icon: Activity, badge: true },
-    ]}
-    fields={[
-      { key: "name", label: "Company Name", required: true },
-      { key: "gst", label: "GST Number", placeholder: "36AABCT1234F1Z5", half: true },
-      { key: "contact", label: "Contact Person", required: true, half: true },
-      { key: "phone", label: "Phone Number", type: "tel", required: true, half: true },
-      { key: "email", label: "Email", type: "email", half: true },
-      { key: "city", label: "City", half: true },
-      { key: "status", label: "Status", type: "select", options: ["Active", "Inactive"], default: "Active", half: true },
-      { key: "address", label: "Address" },
-    ]}
-  />
-);
+export const CompaniesPage = () => {
+  const vehicleList = useVehicles().map((v) => v.regNo);
+  return (
+    <DataPage
+      title="Companies" singular="Company" idPrefix="CO" initial={companies}
+      subtitle="Companies you provide vehicle transportation to, with assigned vehicles and agreements"
+      tabs={[
+        { label: "All Companies", icon: Building2 },
+        { label: "Active", icon: UserCheck, test: (r) => r.status === "Active" },
+        { label: "Inactive", icon: UserX, test: (r) => r.status === "Inactive" },
+      ]}
+      columns={[
+        { key: "id", label: "ID", id: true },
+        { key: "name", label: "Company Name", icon: Building2, primary: true },
+        { key: "service", label: "Service", icon: Route },
+        { key: "vehicles", label: "Assigned Vehicles", icon: Car },
+        { key: "agreementNo", label: "Agreement No", icon: FileText },
+        { key: "agreementEnd", label: "Agreement Ends", icon: CalendarDays },
+        { key: "agreementCopy", label: "Agreement Copy", icon: Paperclip, files: true },
+        { key: "contact", label: "Contact Person", icon: UserRound },
+        { key: "phone", label: "Phone", icon: Phone },
+        { key: "status", label: "Status", icon: Activity, badge: true },
+      ]}
+      fields={[
+        { key: "name", label: "Company Name", required: true },
+        { key: "gst", label: "GST Number", placeholder: "36AABCT1234F1Z5", half: true },
+        { key: "service", label: "Service Type", type: "select", options: SERVICE_TYPES, default: "Vehicle Transportation", required: true, half: true },
+        { key: "contact", label: "Contact Person", required: true, half: true },
+        { key: "phone", label: "Phone Number", type: "tel", required: true, half: true },
+        { key: "email", label: "Email", type: "email", half: true },
+        { key: "city", label: "City", half: true },
+        { key: "address", label: "Address" },
+        { key: "vehicles", label: "Assigned Vehicles", type: "multiselect", options: vehicleList },
+        { key: "agreementNo", label: "Agreement Number", placeholder: "AGR-2026-001", half: true },
+        { key: "agreementStart", label: "Agreement Start Date", type: "date", half: true },
+        { key: "agreementEnd", label: "Agreement End Date", type: "date", half: true },
+        { key: "status", label: "Status", type: "select", options: ["Active", "Inactive"], default: "Active", half: true },
+        { key: "agreementCopy", label: "Agreement Copy", type: "file" },
+      ]}
+    />
+  );
+};

@@ -42,11 +42,11 @@ export const bookings = [
 ];
 
 export const expenses = [
-  { id: 1, date: fmtDate(addDays(0)), vehicle: "TS 09 UA 1234", category: "Fuel", amount: 4200, note: "Diesel – 45 L" },
-  { id: 2, date: fmtDate(addDays(-1)), vehicle: "AP 28 TC 7788", category: "Toll", amount: 1350, note: "Hyd–Vijayawada" },
-  { id: 3, date: fmtDate(addDays(-2)), vehicle: "TS 08 UB 4521", category: "Maintenance", amount: 6800, note: "Brake pads" },
-  { id: 4, date: fmtDate(addDays(-3)), vehicle: "TS 10 UC 3344", category: "Fuel", amount: 2900, note: "Petrol – 28 L" },
-  { id: 5, date: fmtDate(addDays(-4)), vehicle: "TS 06 UH 1100", category: "Driver Allowance", amount: 1500, note: "Night halt" },
+  { id: 1, date: fmtDate(addDays(0)), vehicle: "TS 09 UA 1234", category: "Fuel", amount: 4200, note: "Diesel – 45 L", paidBy: "Madhavi", spentBy: "Ramesh Kumar" },
+  { id: 2, date: fmtDate(addDays(-1)), vehicle: "AP 28 TC 7788", category: "Toll", amount: 1350, note: "Hyd–Vijayawada", paidBy: "Admin", spentBy: "Mahesh Goud" },
+  { id: 3, date: fmtDate(addDays(-2)), vehicle: "TS 08 UB 4521", category: "Maintenance", amount: 6800, note: "Brake pads", paidBy: "Madhavi", spentBy: "Rajesh" },
+  { id: 4, date: fmtDate(addDays(-3)), vehicle: "TS 10 UC 3344", category: "Fuel", amount: 2900, note: "Petrol – 28 L", paidBy: "Rajesh", spentBy: "Anil Yadav" },
+  { id: 5, date: fmtDate(addDays(-4)), vehicle: "TS 06 UH 1100", category: "Driver Allowance", amount: 1500, note: "Night halt", paidBy: "Admin", spentBy: "Naresh B" },
 ];
 
 export const payments = [
@@ -130,10 +130,26 @@ export const staff = [
 
 // ------- Companies -------
 export const companies = [
-  { id: 1, name: "Travel Rich Pvt Ltd", gst: "36AABCT1234F1Z5", contact: "Madhavi", phone: "98480 00002", email: "info@travelrich.com", city: "Hyderabad", address: "Plot 12, Madhapur, Hyderabad 500081", status: "Active" },
-  { id: 2, name: "Sri Lakshmi Travels", gst: "36AAFCS5678K1Z2", contact: "Lakshmi Narayana", phone: "99890 12345", email: "accounts@srilakshmitravels.in", city: "Hyderabad", address: "Ameerpet, Hyderabad 500016", status: "Active" },
-  { id: 3, name: "TechNova Pvt Ltd", gst: "36AAHCT9087M1Z8", contact: "Kiran Rao", phone: "90000 55512", email: "admin@technova.in", city: "Hyderabad", address: "HITEC City, Hyderabad 500081", status: "Active" },
-  { id: 4, name: "Green Valley School", gst: "", contact: "Principal Office", phone: "98660 77123", email: "office@greenvalley.edu", city: "Secunderabad", address: "Trimulgherry, Secunderabad 500015", status: "Inactive" },
+  { id: 1, name: "Travel Rich Pvt Ltd", gst: "36AABCT1234F1Z5", contact: "Madhavi", phone: "98480 00002", email: "info@travelrich.com", city: "Hyderabad", address: "Plot 12, Madhapur, Hyderabad 500081", service: "Vehicle Transportation", vehicles: ["TS 09 UA 1234", "TS 07 UD 9012"], agreementNo: "AGR-2026-001", agreementStart: fmtDate(addDays(-120)), agreementEnd: fmtDate(addDays(245)), agreementCopy: [], status: "Active" },
+  { id: 2, name: "Sri Lakshmi Travels", gst: "36AAFCS5678K1Z2", contact: "Lakshmi Narayana", phone: "99890 12345", email: "accounts@srilakshmitravels.in", city: "Hyderabad", address: "Ameerpet, Hyderabad 500016", service: "Tour & Travel", vehicles: ["TS 08 UB 4521"], agreementNo: "AGR-2026-002", agreementStart: fmtDate(addDays(-60)), agreementEnd: fmtDate(addDays(305)), agreementCopy: [], status: "Active" },
+  { id: 3, name: "TechNova Pvt Ltd", gst: "36AAHCT9087M1Z8", contact: "Kiran Rao", phone: "90000 55512", email: "admin@technova.in", city: "Hyderabad", address: "HITEC City, Hyderabad 500081", service: "Employee Transportation", vehicles: ["TS 12 UG 6070", "AP 09 TF 2210"], agreementNo: "AGR-2026-003", agreementStart: fmtDate(addDays(-30)), agreementEnd: fmtDate(addDays(335)), agreementCopy: [], status: "Active" },
+  { id: 4, name: "Green Valley School", gst: "", contact: "Principal Office", phone: "98660 77123", email: "office@greenvalley.edu", city: "Secunderabad", address: "Trimulgherry, Secunderabad 500015", service: "School / College Transportation", vehicles: ["AP 28 TC 7788"], agreementNo: "AGR-2025-014", agreementStart: fmtDate(addDays(-400)), agreementEnd: fmtDate(addDays(-35)), agreementCopy: [], status: "Inactive" },
+];
+
+// ------- Purchases (vehicle transportation purchases) -------
+export const purchases = [
+  { id: 1, date: fmtDate(addDays(0)), purchasedFrom: "Sri Sai Auto Spares", item: "Brake pads (set of 4)", category: "Spare Parts", vehicle: "TS 08 UB 4521", qty: 1, amount: 6800, mode: "UPI", paidBy: "Madhavi", spentBy: "Rajesh", note: "Front & rear" },
+  { id: 2, date: fmtDate(addDays(-2)), purchasedFrom: "MRF Tyres Hyderabad", item: "Tyres 215/65 R16", category: "Tyres", vehicle: "TS 09 UA 1234", qty: 4, amount: 38000, mode: "Bank Transfer", paidBy: "Admin", spentBy: "Ramesh Kumar", note: "Replacement set" },
+  { id: 3, date: fmtDate(addDays(-5)), purchasedFrom: "Indian Oil Petrol Bunk", item: "Diesel – bulk purchase", category: "Fuel", vehicle: "", qty: 200, amount: 18600, mode: "Card", paidBy: "Madhavi", spentBy: "Madhavi", note: "Fleet fuel card top-up" },
+  { id: 4, date: fmtDate(addDays(-9)), purchasedFrom: "Shine Car Care", item: "Seat covers & floor mats", category: "Accessories", vehicle: "TS 07 UD 9012", qty: 1, amount: 4500, mode: "Cash", paidBy: "Rajesh", spentBy: "Venkat Rao", note: "" },
+];
+
+// ------- Challans (traffic fines related to vehicles) -------
+export const challans = [
+  { id: 1, challanNo: "TS-CH-884512", date: fmtDate(addDays(-6)), vehicle: "TS 09 UA 1234", driver: "Ramesh Kumar", violation: "Over Speeding", location: "ORR, Shamshabad", amount: 1000, dueDate: fmtDate(addDays(24)), status: "Pending", paidBy: "", note: "" },
+  { id: 2, challanNo: "TS-CH-883120", date: fmtDate(addDays(-14)), vehicle: "TS 08 UB 4521", driver: "Suresh Reddy", violation: "No Parking", location: "Banjara Hills Rd No. 12", amount: 500, dueDate: fmtDate(addDays(16)), status: "Paid", paidBy: "Madhavi", note: "Paid online" },
+  { id: 3, challanNo: "AP-CH-220941", date: fmtDate(addDays(-20)), vehicle: "AP 28 TC 7788", driver: "Mahesh Goud", violation: "Overloading", location: "Vijayawada Highway", amount: 2000, dueDate: fmtDate(addDays(10)), status: "Pending", paidBy: "", note: "Contest with RTO" },
+  { id: 4, challanNo: "TS-CH-879004", date: fmtDate(addDays(-35)), vehicle: "TS 07 UD 9012", driver: "Venkat Rao", violation: "Signal Jumping", location: "Tank Bund", amount: 1000, dueDate: fmtDate(addDays(-5)), status: "Paid", paidBy: "Venkat Rao", note: "" },
 ];
 
 // ------- Payroll: monthly salary structure per staff member -------

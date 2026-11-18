@@ -60,9 +60,9 @@ function Table({ cols, rows, empty, foot }) {
                 {cols.map((c) => {
                   const val = c.render ? c.render(r) : r[c.key];
                   return (
-                    <td key={c.label} className={c.badge ? `zst ${c.badge(r)}` : c.primary ? "prim" : undefined}
+                    <td key={c.label} className={c.badge ? "zst" : c.primary ? "prim" : undefined}
                       style={c.right ? { textAlign: "right" } : undefined}>
-                      {val === "" || val === undefined || val === null ? <span className="zmuted">—</span> : val}
+                      {val === "" || val === undefined || val === null ? <span className="zmuted">—</span> : c.badge ? <span className={`zpill ${c.badge(r)}`}>{val}</span> : val}
                     </td>
                   );
                 })}

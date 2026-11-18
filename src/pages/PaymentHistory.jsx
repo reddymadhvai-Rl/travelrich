@@ -90,7 +90,7 @@ export default function PaymentHistory() {
                   <td>{r.date}</td>
                   <td>{r.booking}</td>
                   <td className="prim"><b>{r.customer}</b></td>
-                  <td className={`zst ${r.type === "Advance" ? "st-blue" : "st-teal"}`}>{r.type}</td>
+                  <td className="zst"><span className={`zpill ${r.type === "Advance" ? "st-blue" : "st-teal"}`}>{r.type}</span></td>
                   <td>{r.mode}</td>
                   <td>{r.ref}</td>
                   <td>{r.by}</td>

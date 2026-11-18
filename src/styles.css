@@ -1947,7 +1947,7 @@ tbody tr:hover {
 .zpage .ztable td.prim {
   font-weight: 500;
   color: var(--zink);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .zlink {

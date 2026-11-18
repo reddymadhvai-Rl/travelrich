@@ -2404,7 +2404,7 @@ tbody tr:hover {
   pointer-events: none;
 }
 
-.login-hero > * {
+.login-hero>* {
   position: relative;
   z-index: 1;
 }
@@ -4958,6 +4958,19 @@ tr.att-sel td {
   .cp-card {
     grid-template-columns: 1fr;
     max-width: 460px;
+  }
+
+  .zbtn {
+    background: #001d51;
+    color: #fff;
+    border: 1px solid #001d51;
+    border-radius: 6px;
+    padding: 11px 13px;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .vf-top {

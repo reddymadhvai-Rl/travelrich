@@ -4,6 +4,8 @@ import { MapPin, MoreHorizontal, Ban, Plus, Pencil, Eye, Trash2, Search, X, Chec
 import { Menu, ConfirmDialog } from "../components/DataPage.jsx";
 import { tracking } from "../data.js";
 import { usePagination } from "../components/Pagination.jsx";
+import SearchBar from "../components/SearchBar.jsx";
+import SearchSelect from "../components/SearchSelect.jsx";
 import { useVehicles, deleteVehicle, updateVehicle, docState, maintenanceState, showDate } from "../vehicleStore.js";
 
 const statusTone = (s) =>
@@ -15,6 +17,8 @@ export default function VehiclesList() {
   const location = useLocation();
   const [tab, setTab] = useState(0);
   const [q, setQ] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [fv, setFv] = useState({});
   const [toast, setToast] = useState("");
   const timer = useRef(null);
 
@@ -31,10 +35,19 @@ export default function VehiclesList() {
     { label: "Documents Expired", icon: FileWarning, test: (v) => docState(v).expired.length > 0 },
   ];
 
+  const FILTERS = [
+    ["type", "Type"], ["make", "Make"], ["fuel", "Fuel"], ["ownership", "Ownership"], ["branch", "Branch"], ["status", "Status", true],
+  ];
+  const optionsOf = (k) => [...new Set(vehicles.map((v) => v[k]).filter(Boolean))].map(String);
+  const activeFilters = Object.values(fv).filter(Boolean).length;
+
   const list = useMemo(() => {
     const t = q.trim().toLowerCase();
-    return vehicles.filter(tabs[tab].test).filter((v) => !t || JSON.stringify(v).toLowerCase().includes(t)); // eslint-disable-line
-  }, [vehicles, tab, q]); // eslint-disable-line
+    return vehicles
+      .filter(tabs[tab].test)
+      .filter((v) => FILTERS.every(([k]) => !fv[k] || String(v[k] ?? "") === fv[k]))
+      .filter((v) => !t || JSON.stringify(v).toLowerCase().includes(t)); // eslint-disable-line
+  }, [vehicles, tab, q, fv]); // eslint-disable-line
 
   const { rows: pageRows, pager } = usePagination(list);
   const [confirm, setConfirm] = useState(null);
@@ -72,12 +85,34 @@ export default function VehiclesList() {
         <div className="zbar">
           <div className="zbar-l" />
           <div className="zbar-r">
-            <div className="zsearch">
-              <input placeholder="Search vehicles" value={q} onChange={(e) => setQ(e.target.value)} />
-              {q && <button onClick={() => setQ("")} aria-label="Clear"><X size={15} /></button>}
-            </div>
+            <SearchBar value={q} onSearch={setQ} placeholder="Search vehicles" filterOpen={showFilters} filterCount={activeFilters} onFilter={() => setShowFilters((v) => !v)} />
           </div>
         </div>
+
+        {showFilters && (
+          <div className="zfpanel">
+            <div className="zfpanel-head"><span>Filters</span>
+              <button type="button" className="zbtn ghost" onClick={() => setShowFilters(false)}><X size={14} /> Close</button>
+            </div>
+            <div className="zfpanel-grid">
+              {FILTERS.map(([k, label, plain]) => (
+                <div className="zfl" key={k}><span className="zfl-t">{label}</span>
+                  {plain ? (
+                    <select value={fv[k] || ""} onChange={(e) => setFv((p) => ({ ...p, [k]: e.target.value }))}>
+                      <option value="">All</option>
+                      {optionsOf(k).map((o) => <option key={o}>{o}</option>)}
+                    </select>
+                  ) : (
+                    <SearchSelect value={fv[k] || ""} options={optionsOf(k)} placeholder="All" onChange={(v) => setFv((p) => ({ ...p, [k]: v }))} />
+                  )}
+                </div>
+              ))}
+              <div className="zfpanel-clear">
+              <button type="button" className="zbtn ghost" disabled={!activeFilters} onClick={() => setFv({})}><X size={14} /> Clear filters</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="zscroll">
           <table className="ztable">

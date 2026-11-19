@@ -6,6 +6,7 @@ import DataPage from "../components/DataPage.jsx";
 import { useNavigate } from "react-router-dom";
 import { History, Building2, Mail as MailIcon } from "lucide-react";
 import { useVehicles } from "../vehicleStore.js";
+import { useBranches } from "../masterStore.js";
 import { vehicles, drivers, bookings, expenses, expenseHeads, payments, users, companies } from "../data.js";
 
 const SERVICE_TYPES = ["Vehicle Transportation", "Employee Transportation", "School / College Transportation", "Tour & Travel"];
@@ -44,7 +45,9 @@ export const VehiclesPage = () => (
   />
 );
 
-export const DriversPage = () => (
+export const DriversPage = () => {
+  const branches = useBranches();
+  return (
   <DataPage
     title="Drivers" singular="Driver" idPrefix="DR" initial={drivers}
     subtitle="Click a driver to edit their details"
@@ -62,8 +65,16 @@ export const DriversPage = () => (
       { key: "license", label: "Driving Licence No", icon: IdCard },
       { key: "licenceType", label: "Licence Type", icon: IdCard },
       { key: "expiry", label: "Licence Expiry", icon: CalendarDays },
-      { key: "aadhaar", label: "Aadhaar / ID Proof", icon: Fingerprint },
-      { key: "address", label: "Address", icon: MapPin },
+      { key: "licenceCopy", label: "Licence Copy", icon: Paperclip, files: true },
+      { key: "aadhaar", label: "Aadhaar No", icon: Fingerprint },
+      { key: "aadhaarCopy", label: "Aadhaar Copy", icon: Paperclip, files: true },
+      { key: "empId", label: "Emp ID", icon: IdCard },
+      { key: "branch", label: "Branch", icon: Building2 },
+      { key: "presentAddress", label: "Present Address", icon: MapPin },
+      { key: "permanentAddress", label: "Permanent Address", icon: MapPin },
+      { key: "state", label: "State", icon: MapPin },
+      { key: "salary", label: "Salary", icon: IndianRupee, money: true },
+      { key: "attachment", label: "Attachment", icon: Paperclip, files: true },
       { key: "experience", label: "Experience (Yrs)", icon: Clock },
       { key: "salaryType", label: "Salary Type", icon: Wallet },
       { key: "status", label: "Status", icon: Activity, badge: true },
@@ -75,14 +86,23 @@ export const DriversPage = () => (
       { key: "license", label: "Driving Licence Number (DL)", required: true, placeholder: "e.g. TS0920190012345", half: true },
       { key: "licenceType", label: "Licence Type", type: "select", options: ["LMV", "Transport", "HMV", "Other"], placeholder: "Select licence type", half: true },
       { key: "expiry", label: "Licence Expiry Date (Renewal Reminder)", type: "date", required: true, placeholder: "dd/mm/yyyy", half: true },
-      { key: "aadhaar", label: "Aadhaar / ID Proof", placeholder: "Enter Aadhaar / ID number (e.g. 1234 5678 9012)", half: true },
-      { key: "address", label: "Residential Address", placeholder: "Enter residential address" },
+      { key: "licenceCopy", label: "Licence Copy", type: "file", half: true },
+      { key: "aadhaar", label: "Aadhaar No", placeholder: "Enter Aadhaar number (e.g. 1234 5678 9012)", half: true },
+      { key: "aadhaarCopy", label: "Aadhaar Copy", type: "file", half: true },
+      { key: "empId", label: "Emp ID", placeholder: "Enter employee ID", half: true },
+      { key: "branch", label: "Branch", type: "select", options: branches, placeholder: "Select branch", half: true },
+      { key: "presentAddress", label: "Present Address", type: "textarea", placeholder: "Enter present address" },
+      { key: "permanentAddress", label: "Permanent Address", type: "textarea", placeholder: "Enter permanent address" },
+      { key: "state", label: "State", placeholder: "Enter state", half: true },
+      { key: "salary", label: "Salary (₹)", type: "number", placeholder: "Enter salary amount", half: true },
+      { key: "attachment", label: "Attachment", type: "file" },
       { key: "experience", label: "Experience (Years)", type: "number", placeholder: "Enter years of experience", half: true },
       { key: "salaryType", label: "Salary Type", type: "select", options: ["Monthly", "Per trip"], placeholder: "Select salary type", half: true },
       { key: "status", label: "Driver Status", type: "select", options: ["Available", "Assigned", "On Leave"], default: "Available", placeholder: "Select driver status", half: true },
     ]}
   />
-);
+  );
+};
 
 const bookingBalance = (f) => Number(f.amount || 0) - Number(f.discount || 0) - Number(f.advance || 0) - Number(f.paid || 0);
 
@@ -142,13 +162,13 @@ export const ExpenseHeadsPage = () => (
     ]}
     columns={[
       { key: "id", label: "ID", id: true },
-      { key: "name", label: "Expense Head", icon: Tag, primary: true },
-      { key: "description", label: "Description", icon: FileText },
+      { key: "name", label: "Expense Head Title", icon: Tag, primary: true },
+      { key: "narration", label: "Narration", icon: FileText },
       { key: "status", label: "Status", icon: Activity, badge: true },
     ]}
     fields={[
-      { key: "name", label: "Expense Head Name", required: true, placeholder: "e.g. Fuel" },
-      { key: "description", label: "Description" },
+      { key: "name", label: "Expense Head Title", required: true, placeholder: "e.g. Fuel" },
+      { key: "narration", label: "Narration", type: "textarea", placeholder: "Enter narration" },
       { key: "status", label: "Status", type: "select", options: ["Active", "Inactive"], default: "Active" },
     ]}
   />
@@ -158,7 +178,6 @@ export const ExpensesPage = () => (
   <DataPage
     title="Expenses" singular="Expense" idPrefix="EX" initial={expenses}
     subtitle="Click an expense to edit it"
-    filters={{ dateKey: "date", select: { key: "category", label: "Expense Head", options: expenseHeads.map((h) => h.name) } }}
     tabs={[{ label: "All Expenses", icon: Receipt }]}
     columns={[
       { key: "id", label: "ID", id: true },
@@ -168,7 +187,7 @@ export const ExpensesPage = () => (
       { key: "amount", label: "Amount", icon: IndianRupee, money: true },
       { key: "paidBy", label: "Paid By", icon: Wallet },
       { key: "spentBy", label: "Spent By", icon: UserRound },
-      { key: "note", label: "Note", icon: FileText },
+      { key: "note", label: "Narration", icon: FileText },
       { key: "receipt", label: "Receipt", icon: Receipt, files: true },
     ]}
     fields={[
@@ -178,7 +197,7 @@ export const ExpensesPage = () => (
       { key: "amount", label: "Amount (₹)", type: "number", required: true, half: true },
       { key: "paidBy", label: "Paid By", placeholder: "Who paid the amount", half: true },
       { key: "spentBy", label: "Spent By", placeholder: "Who spent the amount", half: true },
-      { key: "note", label: "Note" },
+      { key: "note", label: "Narration" },
       { key: "receipt", label: "Receipt", type: "file" },
     ]}
   />

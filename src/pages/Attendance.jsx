@@ -4,6 +4,8 @@ import {
   UserCheck, UserX, UserMinus, Users, CalendarDays, Clock, Pencil, Check, Save, Settings2, Plus,
 } from "lucide-react";
 import { staff } from "../data.js";
+import SearchSelect from "../components/SearchSelect.jsx";
+import DateField from "../components/DateField.jsx";
 import {
   STATUSES, CODE, todayIso, getRecord, setRecord, monthDates, nowTime, useAttendanceVersion,
 } from "../attendanceStore.js";
@@ -23,10 +25,11 @@ function Legend() {
 }
 
 function StaffSelect({ value, onChange }) {
+  const label = (s) => `${s.name} — ${s.role}`;
+  const cur = staff.find((s) => s.id === value);
   return (
-    <select className="att-input" value={value} onChange={(e) => onChange(e.target.value)} aria-label="Employee">
-      {staff.map((s) => <option key={s.id} value={s.id}>{s.name} — {s.role}</option>)}
-    </select>
+    <SearchSelect value={cur ? label(cur) : ""} options={staff.map(label)} placeholder="Search employee"
+      onChange={(v) => { const m = staff.find((s) => label(s) === v); if (m) onChange(m.id); }} />
   );
 }
 
@@ -147,7 +150,7 @@ export function AddAttendance() {
         {err && <div className="err" style={{ marginBottom: 10 }}>{err}</div>}
         <div className="zf att-f"><label>Employee<span className="zreq">*</span></label><StaffSelect value={f.emp} onChange={(v) => set("emp", v)} /></div>
         <div className="zrow2 att-f">
-          <div className="zf"><label>Date<span className="zreq">*</span></label><input type="date" max={todayIso()} value={f.date} onChange={(e) => set("date", e.target.value)} /></div>
+          <div className="zf"><label>Date<span className="zreq">*</span></label><DateField value={f.date} max={todayIso()} clearable={false} onChange={(v) => set("date", v)} /></div>
           <div className="zf"><label>Status<span className="zreq">*</span></label>
             <select value={f.status} onChange={(e) => set("status", e.target.value)}>{STATUSES.map((s) => <option key={s}>{s}</option>)}</select>
           </div>
@@ -206,12 +209,8 @@ export function MonthAttendance() {
     <div className="panel">
       <div className="att-month-top">
         <h3><CalendarDays size={17} /> Monthly Attendance</h3>
-        <select className="att-input" value={m} onChange={(e) => setM(Number(e.target.value))} aria-label="Month">
-          {MONTHS.map((n, i) => <option key={n} value={i + 1}>{n}</option>)}
-        </select>
-        <select className="att-input" value={y} onChange={(e) => setY(Number(e.target.value))} aria-label="Year">
-          {years.map((n) => <option key={n} value={n}>{n}</option>)}
-        </select>
+        <div style={{ width: 150 }}><SearchSelect value={MONTHS[m - 1]} options={MONTHS} placeholder="Month" onChange={(v) => { const i = MONTHS.indexOf(v); if (i >= 0) setM(i + 1); }} /></div>
+        <div style={{ width: 110 }}><SearchSelect value={String(y)} options={years.map(String)} placeholder="Year" onChange={(v) => v && setY(Number(v))} /></div>
         <Legend />
       </div>
       <div className="att-scroll">

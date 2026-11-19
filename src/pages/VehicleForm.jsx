@@ -4,7 +4,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ArrowLeft, Car, FileCheck2, Camera, UserRound, Clock, TriangleAlert, List } from "lucide-react";
 import { drivers } from "../data.js";
-import { useBranches, useFuelTypes, useCategories, useVehicleTypes } from "../masterStore.js";
+import { useBranches, useFuelTypes, useCategories } from "../masterStore.js";
+import SearchSelect from "../components/SearchSelect.jsx";
 import {
   useVehicles, addVehicle, updateVehicle, nextVehicleId, docState, daysLeft,
   OWNERSHIP, PERMIT_TYPES, VEHICLE_STATUS,
@@ -63,7 +64,6 @@ export default function VehicleForm() {
   const vehicles = useVehicles();
   const categories = useCategories();
   const fuelTypes = useFuelTypes();
-  const vehicleTypes = useVehicleTypes();
   const branches = useBranches();
   // keep a vehicle's saved value selectable even if its master record was later deactivated
   const withCur = (list, cur) => (cur && !list.includes(cur) ? [...list, cur] : list);
@@ -160,10 +160,15 @@ export default function VehicleForm() {
           showMonthDropdown showYearDropdown dropdownMode="select" scrollableYearDropdown yearDropdownItemNumber={40}
           maxDate={props.maxDate} wrapperClassName="vf-dp" />
       ) : props.options ? (
-        <select id={`v_${k}`} value={form[k]} onChange={(e) => (props.onChange ? props.onChange(e.target.value) : set(k, e.target.value))}>
-          <option value="">{`Select ${nm}`}</option>
-          {props.options.map((o) => <option key={o}>{o}</option>)}
-        </select>
+        k === "status" ? (
+          <select id={`v_${k}`} value={form[k]} onChange={(e) => (props.onChange ? props.onChange(e.target.value) : set(k, e.target.value))}>
+            <option value="">{`Select ${nm}`}</option>
+            {props.options.map((o) => <option key={o}>{o}</option>)}
+          </select>
+        ) : (
+          <SearchSelect id={`v_${k}`} value={form[k]} options={props.options} placeholder={`Search ${nm}`}
+            onChange={(v) => (props.onChange ? props.onChange(v) : set(k, v))} />
+        )
       ) : props.textarea ? (
         <textarea id={`v_${k}`} rows={2} value={form[k]} placeholder={ph} onChange={(e) => set(k, e.target.value)} />
       ) : (
@@ -254,7 +259,7 @@ export default function VehicleForm() {
           {F("regNo", "Vehicle Registration Number", { required: true, placeholder: "TS09AB1234" })}
           {F("vehicleName", "Vehicle Name", { placeholder: "Innova Crysta, Ertiga, Tempo Traveller" })}
           {F("type", "Vehicle Category", { required: true, options: withCur(categories, form.type) })}
-          {F("ac", "Vehicle Type", { options: withCur(vehicleTypes, form.ac) })}
+          {F("ac", "AC / Non-AC", { options: ["AC", "Non-AC"] })}
           {F("make", "Brand / Manufacturer", { required: true, placeholder: "Toyota, Maruti, Force" })}
           {F("model", "Model", { required: true, placeholder: "Innova Crysta" })}
           {F("year", "Manufacturing Year", { type: "number", placeholder: "2024" })}

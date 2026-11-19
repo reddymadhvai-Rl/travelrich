@@ -36,7 +36,6 @@ const menu = [
       { label: "Branches", to: "/master/branches", icon: Building2 },
       { label: "Fuel Types", to: "/master/fuel-types", icon: Fuel },
       { label: "Vehicle Category", to: "/master/vehicle-categories", icon: Layers },
-      { label: "Vehicle Type", to: "/master/vehicle-types", icon: Snowflake },
     ],
   },
   { label: "Vehicles", icon: Car, children: manageAdd({ label: "Vehicles", to: "/vehicles" }, "Vehicle", "/vehicles/new") },
@@ -49,14 +48,9 @@ const menu = [
       { label: "Expense Heads", to: "/expense-heads", icon: Tag },
     ],
   },
-  {
-    label: "Companies", icon: ClipboardList, children: [
-      { label: "Add Company   ", to: "/company-assignments/new", icon: Plus },
-      { label: "Manage Company   ", to: "/company-assignments", icon: List },
-    ],
-  },
-  { label: "Purchases", icon: ShoppingCart, children: manageAdd({ label: "Purchases", to: "/purchases" }, "Purchase", "/purchases/new") },
-  { label: "Challans", icon: FileWarning, children: manageAdd({ label: "Challans", to: "/challans" }, "Challan", "/challans/new") },
+  { label: "Companies", icon: Building2, children: manageAdd({ label: "Companies", to: "/companies" }, "Company") },
+  { label: "Purchases", icon: ShoppingCart, children: manageAdd({ label: "Purchases", to: "/purchases" }, "Purchase") },
+  { label: "Challans", icon: FileWarning, children: manageAdd({ label: "Challans", to: "/challans" }, "Challan") },
   {
     label: "Payments", icon: CreditCard, children: [
       ...manageAdd({ label: "Payments", to: "/payments" }, "Payment"),

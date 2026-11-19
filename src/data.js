@@ -110,13 +110,13 @@ export const breakdownsToday = [
 ];
 
 export const expenseHeads = [
-  { id: 1, name: "Fuel", description: "Diesel / petrol / CNG", status: "Active" },
-  { id: 2, name: "Toll", description: "Toll plaza and FASTag charges", status: "Active" },
-  { id: 3, name: "Maintenance", description: "Repairs, servicing and spares", status: "Active" },
-  { id: 4, name: "Driver Allowance", description: "Batta, night halt and food", status: "Active" },
-  { id: 5, name: "Tyres", description: "Tyre purchase and puncture", status: "Active" },
-  { id: 6, name: "Insurance", description: "Vehicle insurance premium", status: "Active" },
-  { id: 7, name: "Other", description: "Miscellaneous expenses", status: "Active" },
+  { id: 1, name: "Fuel", narration: "Diesel / petrol / CNG", status: "Active" },
+  { id: 2, name: "Toll", narration: "Toll plaza and FASTag charges", status: "Active" },
+  { id: 3, name: "Maintenance", narration: "Repairs, servicing and spares", status: "Active" },
+  { id: 4, name: "Driver Allowance", narration: "Batta, night halt and food", status: "Active" },
+  { id: 5, name: "Tyres", narration: "Tyre purchase and puncture", status: "Active" },
+  { id: 6, name: "Insurance", narration: "Vehicle insurance premium", status: "Active" },
+  { id: 7, name: "Other", narration: "Miscellaneous expenses", status: "Active" },
 ];
 
 // staff used by the attendance pages

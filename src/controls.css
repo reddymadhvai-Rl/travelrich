@@ -1,0 +1,76 @@
+/* Shared form controls: searchable dropdown, date picker, search bar, filter panel, popup form */
+
+/* ---------- searchable dropdown ---------- */
+.ss { position: relative; }
+.zf .ss input, .ss input { width: 100%; box-sizing: border-box; padding-right: 32px; }
+.ss-chev { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
+.ss-x { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; display: grid; place-items: center; border: 0; background: transparent; color: #94a3b8; border-radius: 4px; cursor: pointer; }
+.ss-x:hover { color: #dc2626; background: #fee2e2; }
+.ss-list {
+  position: absolute; z-index: 400; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none;
+  max-height: 220px; overflow: auto; background: #fff; border: 1px solid #d6dbe3; border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, .14); text-align: left;
+}
+.ss-list li { padding: 8px 10px; font-size: 13.5px; border-radius: 4px; cursor: pointer; color: #001848; }
+.ss-list li.hi { background: #eef3fb; }
+.ss-list li.sel { font-weight: 600; color: #0a3d8f; }
+.ss-list li.empty { color: #94a3b8; cursor: default; }
+.ss input:disabled { background: #f1f5f9; cursor: not-allowed; }
+
+/* ---------- date picker ---------- */
+.vf-dp, .vf-dp .react-datepicker__input-container { width: 100%; display: block; }
+.vf-dp input { width: 100%; box-sizing: border-box; }
+.react-datepicker-popper { z-index: 500 !important; }
+
+/* ---------- search bar (input + Search button + filter icon) ---------- */
+.zsb { display: flex; align-items: center; gap: 8px; }
+.zsb .zsearch input { width: 200px; }
+.zsb-go { height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; }
+.zicon { position: relative; }
+.zicon.on { background: #eef3fb; color: #0a3d8f; }
+
+/* ---------- filter panel (opens from the filter icon) ---------- */
+.zfpanel {
+  padding: 14px 16px 12px; border-bottom: 1px solid #e1e5ee; background: #fafbfe;
+}
+.zfpanel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-size: 13px; font-weight: 600; color: #001848; }
+.zfpanel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px 14px; }
+.zfpanel-grid label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 500; color: #001848; }
+.zfpanel-grid input, .zfpanel-grid select {
+  height: 34px; border: 1px solid #d5dae6; border-radius: 6px; padding: 0 10px; font: inherit; font-size: 13px; background: #fff; width: 100%; box-sizing: border-box;
+}
+.zfpanel-range { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.zfpanel-foot { display: flex; gap: 8px; margin-top: 12px; }
+
+/* rich text placeholder */
+.zrte-body:empty::before { content: attr(data-placeholder); color: #94a3b8; pointer-events: none; }
+
+/* Clear-filters button sits in the same row as the filter fields */
+.zfpanel-clear { display: flex; align-items: flex-end; }
+.zfpanel-clear .zbtn { height: 34px; }
+
+/* filter items are plain divs (not <label>) so clicks inside the calendar / dropdown list are not re-forwarded to the input */
+.zfpanel-grid .zfl { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.zfl-t { font-size: 12px; font-weight: 500; color: #001848; }
+.zfpanel-grid .zfl:has(.zfpanel-range) { grid-column: span 2; }
+.zfpanel-range { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; min-width: 0; }
+.zfpanel-range .vf-dp, .zfpanel-range .react-datepicker__input-container { width: 100%; min-width: 0; }
+.zfpanel-grid .react-datepicker__input-container input { padding-right: 28px; text-overflow: ellipsis; }
+.zfpanel-grid .react-datepicker__close-icon { right: 0; }
+.zfpanel-grid .react-datepicker__close-icon::after { background-color: #94a3b8; }
+.react-datepicker-popper { z-index: 600 !important; }
+
+/* the date input that is open gets react-datepicker's own class – keep it styled like the others */
+.zfpanel-grid .react-datepicker__input-container input,
+.zfpanel-grid .react-datepicker-ignore-onclickoutside {
+  height: 34px; width: 100%; box-sizing: border-box; border: 1px solid #d5dae6; border-radius: 6px; padding: 0 28px 0 10px;
+  font: inherit; font-size: 13px; background: #fff; color: inherit; outline: none;
+}
+.zfpanel-grid .react-datepicker__input-container input:focus,
+.zfpanel-grid .react-datepicker-ignore-onclickoutside { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, .12); }
+.zfpanel-grid .react-datepicker__close-icon { height: 100%; }
+
+/* DatePicker renders the input and its calendar as siblings – keep them inside one box so they never become extra grid cells */
+.df-wrap { position: relative; display: block; width: 100%; min-width: 0; }
+.zfpanel-range { display: flex; gap: 8px; min-width: 0; }
+.zfpanel-range > .df-wrap { flex: 1 1 0; }

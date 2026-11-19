@@ -388,7 +388,7 @@ export default function VehicleDetails() {
               { label: "Date", key: "date", primary: true },
               { label: "Category", key: "category" },
               { label: "Amount", render: (r) => inr(r.amount), right: true },
-              { label: "Note", key: "note" },
+              { label: "Narration", key: "note" },
             ]}
           />
         </div>

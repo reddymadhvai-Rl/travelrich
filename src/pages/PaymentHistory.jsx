@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, History, IndianRupee, Wallet, ArrowDownToLine, Receipt, X, Download } from "lucide-react";
 import { paymentHistory, bookings } from "../data.js";
 import { usePagination } from "../components/Pagination.jsx";
+import SearchBar from "../components/SearchBar.jsx";
+import SearchSelect from "../components/SearchSelect.jsx";
+import DateField from "../components/DateField.jsx";
 
 const money = (v) => "₹" + Number(v || 0).toLocaleString("en-IN");
 const pad = (n) => String(n).padStart(2, "0");
@@ -16,6 +19,7 @@ export default function PaymentHistory() {
   const [booking, setBooking] = useState("");
   const [mode, setMode] = useState("");
   const [q, setQ] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
   const rows = useMemo(() => {
     const t = q.trim().toLowerCase();
@@ -27,6 +31,7 @@ export default function PaymentHistory() {
   }, [from, to, booking, mode, q]);
 
   const { rows: pageRows, pager } = usePagination(rows);
+  const activeFilters = [from, to, booking, mode].filter(Boolean).length;
   const total = rows.reduce((s, r) => s + r.amount, 0);
   const adv = rows.filter((r) => r.type === "Advance").reduce((s, r) => s + r.amount, 0);
   const cards = [
@@ -66,18 +71,32 @@ export default function PaymentHistory() {
       </div>
 
       <div className="zcard">
-        <div className="zfilters">
-          <label>From date<input type="date" value={from} max={to || undefined} onChange={(e) => setFrom(e.target.value)} /></label>
-          <label>To date<input type="date" value={to} min={from || undefined} onChange={(e) => setTo(e.target.value)} /></label>
-          <label>Booking
-            <select value={booking} onChange={(e) => setBooking(e.target.value)}><option value="">All</option>{bookings.map((b) => <option key={b.id}>{b.id}</option>)}</select>
-          </label>
-          <label>Payment Mode
-            <select value={mode} onChange={(e) => setMode(e.target.value)}><option value="">All</option>{MODES.map((m) => <option key={m}>{m}</option>)}</select>
-          </label>
-          <label>Search<input placeholder="Customer, ref…" value={q} onChange={(e) => setQ(e.target.value)} /></label>
-          {(from || to || booking || mode || q) && <button type="button" className="zbtn ghost" onClick={() => { setFrom(""); setTo(""); setBooking(""); setMode(""); setQ(""); }}><X size={14} /> Clear</button>}
+        <div className="zbar">
+          <div className="zbar-l" />
+          <div className="zbar-r">
+            <SearchBar value={q} onSearch={setQ} placeholder="Search customer, ref…" filterOpen={showFilters} filterCount={activeFilters} onFilter={() => setShowFilters((v) => !v)} />
+          </div>
         </div>
+        {showFilters && (
+          <div className="zfpanel">
+            <div className="zfpanel-head"><span>Filters</span>
+              <button type="button" className="zbtn ghost" onClick={() => setShowFilters(false)}><X size={14} /> Close</button>
+            </div>
+            <div className="zfpanel-grid">
+              <div className="zfl"><span className="zfl-t">Date</span>
+                <span className="zfpanel-range">
+                  <DateField value={from} max={to || undefined} placeholder="From" onChange={setFrom} />
+                  <DateField value={to} min={from || undefined} placeholder="To" onChange={setTo} />
+                </span>
+              </div>
+              <div className="zfl"><span className="zfl-t">Booking</span><SearchSelect value={booking} options={bookings.map((b) => b.id)} placeholder="All" onChange={setBooking} /></div>
+              <div className="zfl"><span className="zfl-t">Payment Mode</span><SearchSelect value={mode} options={MODES} placeholder="All" onChange={setMode} /></div>
+              <div className="zfpanel-clear">
+              <button type="button" className="zbtn ghost" disabled={!activeFilters} onClick={() => { setFrom(""); setTo(""); setBooking(""); setMode(""); }}><X size={14} /> Clear filters</button>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="zscroll">
           <table className="ztable">
             <thead>

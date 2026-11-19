@@ -18,10 +18,10 @@ export function useStore(store) {
 
 /* ---------- Master data ---------- */
 export const branchStore = createStore([
-  { id: 1, name: "Hyderabad", code: "HYD", city: "Hyderabad", phone: "98480 00002", address: "Plot 12, Madhapur, Hyderabad 500081", status: "Active" },
-  { id: 2, name: "Secunderabad", code: "SEC", city: "Secunderabad", phone: "98480 00003", address: "Trimulgherry, Secunderabad 500015", status: "Active" },
-  { id: 3, name: "Vijayawada", code: "VJA", city: "Vijayawada", phone: "98480 00005", address: "Benz Circle, Vijayawada 520010", status: "Active" },
-  { id: 4, name: "Visakhapatnam", code: "VSP", city: "Visakhapatnam", phone: "98480 00006", address: "Dwaraka Nagar, Visakhapatnam 530016", status: "Active" },
+  { id: 1, name: "Hyderabad", code: "HYD", city: "Hyderabad", contactName: "Madhavi", contactMobile: "98480 00002", email: "hyderabad@travelrich.com", address: "Plot 12, Madhapur, Hyderabad 500081", status: "Active" },
+  { id: 2, name: "Secunderabad", code: "SEC", city: "Secunderabad", contactName: "Rajesh", contactMobile: "98480 00003", email: "secunderabad@travelrich.com", address: "Trimulgherry, Secunderabad 500015", status: "Active" },
+  { id: 3, name: "Vijayawada", code: "VJA", city: "Vijayawada", contactName: "Srinivas Rao", contactMobile: "98480 00005", email: "vijayawada@travelrich.com", address: "Benz Circle, Vijayawada 520010", status: "Active" },
+  { id: 4, name: "Visakhapatnam", code: "VSP", city: "Visakhapatnam", contactName: "Lakshmi Prasad", contactMobile: "98480 00006", email: "visakhapatnam@travelrich.com", address: "Dwaraka Nagar, Visakhapatnam 530016", status: "Active" },
 ]);
 
 export const fuelTypeStore = createStore([
@@ -38,15 +38,8 @@ export const categoryStore = createStore(
   }))
 );
 
-export const vehicleTypeStore = createStore(
-  [["AC", "Air-conditioned vehicle"], ["Non-AC", "Vehicle without air-conditioning"]].map(([name, description], i) => ({
-    id: i + 1, name, description, status: "Active",
-  }))
-);
-
 /* active names only – used by dropdowns elsewhere in the app */
 const activeNames = (rows) => rows.filter((r) => r.status !== "Inactive").map((r) => r.name);
 export const useBranches = () => activeNames(useStore(branchStore));
 export const useFuelTypes = () => activeNames(useStore(fuelTypeStore));
 export const useCategories = () => activeNames(useStore(categoryStore));
-export const useVehicleTypes = () => activeNames(useStore(vehicleTypeStore));

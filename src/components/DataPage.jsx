@@ -8,6 +8,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { fmtDate } from "../data.js";
 import { usePagination } from "./Pagination.jsx";
 import { useStore, createStore } from "../masterStore.js";
+import SearchSelect from "./SearchSelect.jsx";
+import DateField from "./DateField.jsx";
+import SearchBar from "./SearchBar.jsx";
+import "../controls.css";
 
 const NO_STORE = createStore([]);
 
@@ -29,6 +33,8 @@ const toInput = (v) => {
 };
 const fromInput = (v) => (v ? fmtDate(new Date(`${v}T00:00:00`)) : "");
 const stripHtml = (h) => String(h || "").replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+const labelText = (f) => String(f.label).replace(/\s*\(.*?\)/g, "").toLowerCase();
+const isStatusField = (f) => /status/i.test(f.key); // Status dropdowns stay plain; every other dropdown is searchable
 const money = (v) => "₹" + Number(v || 0).toLocaleString("en-IN");
 
 function nextId(rows, prefix) {
@@ -104,7 +110,7 @@ export function ConfirmDialog({ cfg, onClose }) {
 }
 
 /* tiny rich text editor (bold, italic, underline, strike, lists, link) */
-function RichText({ value, onChange }) {
+function RichText({ value, onChange, placeholder }) {
   const ref = useRef(null);
   useEffect(() => { if (ref.current) ref.current.innerHTML = value || ""; }, []); // eslint-disable-line
   const cmd = (c, arg) => { ref.current.focus(); document.execCommand(c, false, arg); onChange(ref.current.innerHTML); };
@@ -124,7 +130,7 @@ function RichText({ value, onChange }) {
         ))}
         <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={link} aria-label="link"><Link2 size={15} /></button>
       </div>
-      <div className="zrte-body" ref={ref} contentEditable suppressContentEditableWarning onInput={() => onChange(ref.current.innerHTML)} />
+      <div className="zrte-body" data-placeholder={placeholder} ref={ref} contentEditable suppressContentEditableWarning onInput={() => onChange(ref.current.innerHTML)} />
     </div>
   );
 }
@@ -174,7 +180,7 @@ function PasswordInput({ id, value, onChange, placeholder }) {
  */
 export default function DataPage({
   title, singular, subtitle, columns, fields = [], initial, idPrefix = "ID", tabs = [], readOnly = false, trackOf,
-  filters, headActions, transform, store, newPath, editPath, noDuplicate,
+  headActions, transform, store, newPath, editPath, noDuplicate,
 }) {
   /* optional shared store (Master Data) – otherwise rows live in local state */
   const shared = useStore(store || NO_STORE);
@@ -185,10 +191,8 @@ export default function DataPage({
   const [q, setQ] = useState("");
   const [sortMode, setSortMode] = useState("all"); // all | az | za
   const [dense, setDense] = useState(false);
-  const [filterVal, setFilterVal] = useState("");
-  const [fFrom, setFFrom] = useState("");
-  const [fTo, setFTo] = useState("");
-  const [fSel, setFSel] = useState("");
+  const [fv, setFv] = useState({}); // filter-panel values: { key: value, key__from, key__to }
+  const [showFilters, setShowFilters] = useState(false);
   const [fav, setFav] = useState(() => localStorage.getItem(`fav_${title}`) === "1");
   const [drawer, setDrawer] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -203,7 +207,6 @@ export default function DataPage({
 
   const idCol = columns.find((c) => c.id);
   const primary = columns.find((c) => c.primary) || columns.find((c) => !c.id);
-  const filterCol = columns.find((c) => c.badge);
   const allTabs = tabs.length ? tabs : [{ label: `All ${title}` }];
 
   const withComputed = (o) => { const n = { ...o }; fields.forEach((f) => { if (f.compute) n[f.key] = f.compute(n); }); return n; };
@@ -211,24 +214,41 @@ export default function DataPage({
   const flash = (m) => { setToast(m); clearTimeout(timer.current); timer.current = setTimeout(() => setToast(""), 2600); };
   const toggleFav = () => { const n = !fav; setFav(n); localStorage.setItem(`fav_${title}`, n ? "1" : "0"); };
 
+  /* filter panel = every field of the add form that can be filtered (selects, dates, text) */
+  const filterDefs = useMemo(() => fields
+    .filter((f) => !f.compute && !["rich", "file", "image", "password", "checkbox", "multiselect", "textarea", "number", "time"].includes(f.type))
+    .map((f) => {
+      const label = String(f.label).replace(/\s*\(.*?\)/g, "");
+      if (f.type === "date") return { key: f.key, label, kind: "date" };
+      if (f.type === "select" || f.type === "search") {
+        const fromRows = [...new Set(rows.map((r) => r[f.key]).filter((v) => v !== undefined && v !== ""))].map(String);
+        const opts = Array.isArray(f.options) && f.options.length ? f.options : fromRows;
+        return { key: f.key, label, kind: "select", options: opts, plain: isStatusField(f) };
+      }
+      return { key: f.key, label, kind: "text" };
+    }), [fields, rows]); // eslint-disable-line
+  const activeFilters = Object.values(fv).filter(Boolean).length;
+
   const list = useMemo(() => {
     let r = rows.filter((x) => (allTabs[tab].test ? allTabs[tab].test(x) : true));
-    if (filterCol && filterVal) r = r.filter((x) => x[filterCol.key] === filterVal);
-    if (filters?.dateKey && (fFrom || fTo)) {
-      r = r.filter((x) => { const d = toInput(x[filters.dateKey]); return d && (!fFrom || d >= fFrom) && (!fTo || d <= fTo); });
-    }
-    if (filters?.select && fSel) r = r.filter((x) => x[filters.select.key] === fSel);
+    filterDefs.forEach((d) => {
+      if (d.kind === "select" && fv[d.key]) r = r.filter((x) => String(x[d.key] ?? "") === fv[d.key]);
+      else if (d.kind === "text" && fv[d.key]) r = r.filter((x) => String(x[d.key] ?? "").toLowerCase().includes(fv[d.key].toLowerCase()));
+      else if (d.kind === "date" && (fv[`${d.key}__from`] || fv[`${d.key}__to`])) {
+        const a = fv[`${d.key}__from`]; const b = fv[`${d.key}__to`];
+        r = r.filter((x) => { const v = toInput(x[d.key]); return v && (!a || v >= a) && (!b || v <= b); });
+      }
+    });
     const t = q.trim().toLowerCase();
     if (t) r = r.filter((x) => JSON.stringify(x).toLowerCase().includes(t));
     if (sortMode !== "all" && primary) {
       r = [...r].sort((a, b) => String(a[primary.key]).localeCompare(String(b[primary.key])) * (sortMode === "az" ? 1 : -1));
     }
     return r;
-  }, [rows, tab, q, filterVal, sortMode, fFrom, fTo, fSel]); // eslint-disable-line
+  }, [rows, tab, q, sortMode, fv, filterDefs]); // eslint-disable-line
 
   const { rows: pageRows, pager } = usePagination(list);
-  const filterOptions = filterCol ? [...new Set(rows.map((r) => r[filterCol.key]))] : [];
-
+  
   /* ---- drawer ---- */
   const openNew = () => {
     if (newPath) { navigate(newPath); return; }
@@ -339,7 +359,7 @@ export default function DataPage({
     if (f.type === "number" && f.label.includes("₹")) return money(v);
     return v === undefined || v === "" ? "—" : String(v);
   };
-  const reset = () => { setQ(""); setFilterVal(""); setSortMode("all"); setTab(0); setFFrom(""); setFTo(""); setFSel(""); };
+  const reset = () => { setQ(""); setFv({}); setSortMode("all"); setTab(0); };
 
   const cell = (c, r) => {
     const v = r[c.key];
@@ -353,10 +373,10 @@ export default function DataPage({
       ) : <span className="zmuted">—</span>;
     }
     if (c.money) return money(v);
-    if (c.date) return /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? fromInput(v) : <span className="zmuted">—</span>;
+    if (c.date) return /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? fromInput(v) : v ? v : <span className="zmuted">—</span>;
     if (Array.isArray(v)) return v.length ? <span className="zclip" title={v.join(", ")}>{v.join(", ")}</span> : <span className="zmuted">—</span>;
     if (c.rich) { const t = stripHtml(v); return t ? <span className="zclip" title={t}>{t}</span> : <span className="zmuted">—</span>; }
-    if (c.primary) return readOnly ? <b>{v}</b> : <button type="button" className="zlink" onClick={() => openEdit(r)}>{v}</button>;
+    if (c.primary) return readOnly ? <b>{v}</b> : <button type="button" className="zlink" onClick={() => openEdit(r)}>{v || "—"}</button>;
     return v === undefined || v === "" ? <span className="zmuted">—</span> : v;
   };
 
@@ -373,11 +393,15 @@ export default function DataPage({
       ) : (
         <>
           <label htmlFor={`f_${f.key}`}>{f.label}{f.required && <span className="zreq">*</span>}</label>
-          {f.type === "select" ? (
+          {f.type === "select" && isStatusField(f) ? (
             <select id={`f_${f.key}`} value={form[f.key]} onChange={(e) => set(f.key, e.target.value)}>
-              <option value="">{f.placeholder || "Select"}</option>
+              <option value="">{f.placeholder || `Select ${labelText(f)}`}</option>
               {f.options.map((o) => <option key={o}>{o}</option>)}
             </select>
+          ) : f.type === "select" ? (
+            <SearchSelect id={`f_${f.key}`} value={form[f.key]} options={f.options} placeholder={f.placeholder || `Search ${labelText(f)}`} onChange={(v) => set(f.key, v)} />
+          ) : f.type === "date" ? (
+            <DateField id={`f_${f.key}`} value={form[f.key]} onChange={(v) => set(f.key, v)} max={f.maxToday ? new Date().toISOString().slice(0, 10) : undefined} />
           ) : f.type === "multiselect" ? (
             <div className="zmulti">
               {f.options.length ? f.options.map((o) => {
@@ -392,13 +416,15 @@ export default function DataPage({
             </div>
           ) : f.type === "file" ? (
             <FilePicker id={`f_${f.key}`} value={form[f.key]} accept={f.accept} onChange={(v) => set(f.key, v)} />
+          ) : f.type === "textarea" ? (
+            <textarea id={`f_${f.key}`} rows={f.rows || 3} value={form[f.key]} placeholder={f.placeholder || `Enter ${labelText(f)}`} onChange={(e) => set(f.key, e.target.value)} />
           ) : f.type === "password" ? (
-            <PasswordInput id={`f_${f.key}`} value={form[f.key]} placeholder={f.placeholder} onChange={(v) => set(f.key, v)} />
+            <PasswordInput id={`f_${f.key}`} value={form[f.key]} placeholder={f.placeholder || `Enter ${labelText(f)}`} onChange={(v) => set(f.key, v)} />
           ) : f.type === "rich" ? (
-            <RichText key={`${editId}-${drawer}`} value={form[f.key]} onChange={(h) => set(f.key, h)} />
+            <RichText key={`${editId}-${drawer}`} value={form[f.key]} placeholder={f.placeholder || `Enter ${labelText(f)}`} onChange={(h) => set(f.key, h)} />
           ) : (
             <input id={`f_${f.key}`} type={f.type || "text"} value={form[f.key]} min={f.type === "number" ? 0 : undefined}
-              placeholder={f.placeholder} autoFocus={autoFocus} readOnly={!!f.compute} className={f.compute ? "zro" : undefined} onChange={(e) => set(f.key, e.target.value)} />
+              placeholder={f.compute ? "Auto calculated" : f.placeholder || `Enter ${labelText(f)}`} autoFocus={autoFocus} readOnly={!!f.compute} className={f.compute ? "zro" : undefined} onChange={(e) => set(f.key, e.target.value)} />
           )}
         </>
       )}
@@ -442,22 +468,7 @@ export default function DataPage({
             <button className={`zstar ${fav ? "on" : ""}`} onClick={toggleFav} title="Mark as default view" aria-label="Favourite view"><Star size={17} /></button>
           </div>
           <div className="zbar-r">
-            <div className="zsearch"><input placeholder={`Search ${title.toLowerCase()}`} value={q} onChange={(e) => setQ(e.target.value)} />{q && <button onClick={() => setQ("")} aria-label="Clear"><X size={15} /></button>}</div>
-            <Menu align="right" trigger={(open) => (
-              <button className="zview small">{dense ? <Rows3 size={17} /> : <List size={17} />}{dense ? "Compact" : "List"}<ChevronDown size={15} style={{ transform: open ? "rotate(180deg)" : "none" }} /></button>
-            )}>
-              <button className={!dense ? "on" : ""} onClick={() => setDense(false)}><List size={15} /> List{!dense && <Check size={15} />}</button>
-              <button className={dense ? "on" : ""} onClick={() => setDense(true)}><Rows3 size={15} /> Compact{dense && <Check size={15} />}</button>
-            </Menu>
-            {filterCol && (
-              <Menu align="right" trigger={() => (
-                <button className={`zicon ${filterVal ? "on" : ""}`} title="Filter" aria-label="Filter"><ListFilter size={17} />{filterVal && <i />}</button>
-              )}>
-                <div className="zmenu-title">Filter by {filterCol.label}</div>
-                <button className={!filterVal ? "on" : ""} onClick={() => setFilterVal("")}>All{!filterVal && <Check size={15} />}</button>
-                {filterOptions.map((o) => <button key={o} className={filterVal === o ? "on" : ""} onClick={() => setFilterVal(o)}>{o}{filterVal === o && <Check size={15} />}</button>)}
-              </Menu>
-            )}
+            <SearchBar value={q} onSearch={setQ} placeholder={`Search ${title.toLowerCase()}`} filterOpen={showFilters} filterCount={activeFilters} onFilter={() => setShowFilters((v) => !v)} />
             <Menu align="right" trigger={() => <button className="zicon" title="More" aria-label="More"><MoreHorizontal size={17} /></button>}>
               <button onClick={exportCsv}><Download size={15} /> Export as CSV</button>
               <button onClick={reset}><RefreshCw size={15} /> Reset view</button>
@@ -465,26 +476,41 @@ export default function DataPage({
           </div>
         </div>
 
-        {/* filters */}
-      {filters && (
-        <div className="zfilters">
-      {filters.dateKey && (
-        <>
-          <label>From date<input type="date" value={fFrom} max={fTo || undefined} onChange={(e) => setFFrom(e.target.value)} /></label>
-          <label>To date<input type="date" value={fTo} min={fFrom || undefined} onChange={(e) => setFTo(e.target.value)} /></label>
-        </>
-      )}
-      {filters.select && (
-        <label>{filters.select.label}
-          <select value={fSel} onChange={(e) => setFSel(e.target.value)}>
-            <option value="">All</option>
-            {filters.select.options.map((o) => <option key={o}>{o}</option>)}
-          </select>
-        </label>
-      )}
-      {(fFrom || fTo || fSel) && <button type="button" className="zbtn ghost" onClick={() => { setFFrom(""); setFTo(""); setFSel(""); }}><X size={14} /> Clear</button>}
-    </div>
-      )}
+        {/* filters (opened from the filter icon) */}
+        {showFilters && (
+          <div className="zfpanel">
+            <div className="zfpanel-head"><span>Filters</span>
+              <button type="button" className="zbtn ghost" onClick={() => setShowFilters(false)}><X size={14} /> Close</button>
+            </div>
+            <div className="zfpanel-grid">
+              {filterDefs.map((d) => (
+                <div className="zfl" key={d.key}><span className="zfl-t">{d.label}</span>
+                  {d.kind === "select" && d.plain && (
+                    <select value={fv[d.key] || ""} onChange={(e) => setFv((p) => ({ ...p, [d.key]: e.target.value }))}>
+                      <option value="">All</option>
+                      {d.options.map((o) => <option key={o}>{o}</option>)}
+                    </select>
+                  )}
+                  {d.kind === "select" && !d.plain && (
+                    <SearchSelect value={fv[d.key] || ""} options={d.options} placeholder="All" onChange={(v) => setFv((p) => ({ ...p, [d.key]: v }))} />
+                  )}
+                  {d.kind === "date" && (
+                    <span className="zfpanel-range">
+                      <DateField value={fv[`${d.key}__from`] || ""} max={fv[`${d.key}__to`] || undefined} placeholder="From" onChange={(v) => setFv((p) => ({ ...p, [`${d.key}__from`]: v }))} />
+                      <DateField value={fv[`${d.key}__to`] || ""} min={fv[`${d.key}__from`] || undefined} placeholder="To" onChange={(v) => setFv((p) => ({ ...p, [`${d.key}__to`]: v }))} />
+                    </span>
+                  )}
+                  {d.kind === "text" && (
+                    <input value={fv[d.key] || ""} placeholder={`Filter by ${d.label.toLowerCase()}`} onChange={(e) => setFv((p) => ({ ...p, [d.key]: e.target.value }))} />
+                  )}
+                </div>
+              ))}
+              <div className="zfpanel-clear">
+              <button type="button" className="zbtn ghost" disabled={!activeFilters} onClick={() => setFv({})}><X size={14} /> Clear filters</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* table */}
         <div className="zscroll">
